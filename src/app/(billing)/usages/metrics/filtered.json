@@ -1,0 +1,134 @@
+[
+  {
+    "event_id": "3jjepfd ijiiagd",
+    "subscription_id": "SUBS1234",
+    "model_name": "Owen 2.5",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "33uhjdsbhjkl",
+    "subscription_id": "SUBS4543",
+    "model_name": "Owen 7B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR", 
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "4kadsnnf4l8o",
+    "subscription_id": "SUBS9083",
+    "model_name": "Owen 13B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+{
+    "event_id": "3jjepfd ijiiagd",
+    "subscription_id": "SUBS1234",
+    "model_name": "Owen 2.5",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "33uhjdsbhjkl",
+    "subscription_id": "SUBS4543",
+    "model_name": "Owen 7B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR", 
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "4kadsnnf4l8o",
+    "subscription_id": "SUBS9083",
+    "model_name": "Owen 13B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+{
+    "event_id": "3jjepfd ijiiagd",
+    "subscription_id": "SUBS1234",
+    "model_name": "Owen 2.5",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "33uhjdsbhjkl",
+    "subscription_id": "SUBS4543",
+    "model_name": "Owen 7B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR", 
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "4kadsnnf4l8o",
+    "subscription_id": "SUBS9083",
+    "model_name": "Owen 13B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+{
+    "event_id": "3jjepfd ijiiagd",
+    "subscription_id": "SUBS1234",
+    "model_name": "Owen 2.5",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "33uhjdsbhjkl",
+    "subscription_id": "SUBS4543",
+    "model_name": "Owen 7B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR", 
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  },
+  {
+    "event_id": "4kadsnnf4l8o",
+    "subscription_id": "SUBS9083",
+    "model_name": "Owen 13B",
+    "translation_date": "15-Aug-22 14:30",
+    "characters": 250,
+    "language_pair": "EN-FR",
+    "region": "UK",
+    "token_type": "input",
+    "user_id": "User0001"
+  }
+]

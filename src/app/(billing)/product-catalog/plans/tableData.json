@@ -1,0 +1,83 @@
+[
+  {
+    "currency": "EUR",
+    "frequency": "Daily",
+    "pricingModel": "",
+    "price": "Set Price",
+    "actualPrice": "",
+    "billingCycle": "",
+    "trial": "",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Weekly",
+    "pricingModel": "Flat Fee",
+    "price": "10,00 € EUR",
+    "actualPrice": "10.00",
+    "billingCycle": "Forever",
+    "trial": "No trial",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Every 21 days",
+    "pricingModel": "",
+    "price": "Set Price",
+    "actualPrice": "",
+    "billingCycle": "",
+    "trial": "",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Monthly",
+    "pricingModel": "Per Unit",
+    "price": "120,00 € EUR",
+    "actualPrice": "120.00",
+    "billingCycle": "Fixed",
+    "trial": "No trial",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Every 6 weeks",
+    "pricingModel": "",
+    "price": "Set Price",
+    "actualPrice": "",
+    "billingCycle": "",
+    "trial": "",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Every 3 months",
+    "pricingModel": "",
+    "price": "Set Price",
+    "actualPrice": "",
+    "billingCycle": "",
+    "trial": "",
+    "pendingApproval": false
+  },
+  {
+    "currency": "EUR",
+    "frequency": "Yearly",
+    "pricingModel": "",
+    "price": "Set Price",
+    "actualPrice": "",
+    "billingCycle": "",
+    "trial": "",
+    "pendingApproval": false
+  },
+  {
+    "currency": "USD",
+    "frequency": "Daily",
+    "pricingModel": "Flat Fee",
+    "price": "$100.00 USD",
+    "actualPrice": "100.00",
+    "billingCycle": "Forever",
+    "trial": "No trial",
+    "pendingApproval": true
+  }
+]
+

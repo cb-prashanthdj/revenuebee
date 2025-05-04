@@ -1,0 +1,495 @@
+[
+  {
+    "id": "p9GvH2QrT5DkLm3F",
+    "customerName": "Emma Smith",
+    "channel": "Web",
+    "customerEmail": "emma.smith@example.com",
+    "customerPhone": "+61-3-9876-5432",
+
+    "status": "Active",
+    "createdOn": "2023-11-22T14:20:45Z",
+    "billingAddress": [
+      {
+        "country": "Australia",
+        "firstName": "Emma",
+        "lastName": "Smith",
+        "email": "accounts@smithsolutions.com.au",
+        "company": "Smith Solutions",
+        "phone": "+61-3-9876-1234",
+        "addressLine1": "78 Collins Street",
+        "addressLine2": "Level 12",
+        "addressLine3": "",
+        "city": "Melbourne",
+        "zip": "3000"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "3782822463100052",
+        "cardType": "MasterCard",
+        "expiryDate": "03/27",
+        "cardHolderName": "Emma Smith",
+        "cvv": "1234",
+        "gateway": "Stripe"
+      }
+    ],
+    "activityLogs": [
+      {
+        "action": "Updated Payment Method",
+        "timestamp": "2024-01-18T09:45:12Z"
+      }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "AUD",
+      "directDebit": false,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": false
+    },
+    "netPayment": 1245.8
+  },
+  {
+    "id": "7JkE9sFr2DnLp4Ht",
+    "customerName": "Carlos Rodriguez",
+    "channel": "Web",
+    "customerEmail": "carlos@rodriguezcorp.com",
+    "customerPhone": "+34-91-555-7890",
+
+    "status": "Active",
+    "createdOn": "2024-01-05T11:30:22Z",
+    "billingAddress": [
+      {
+        "country": "Spain",
+        "firstName": "Carlos",
+        "lastName": "Rodriguez",
+        "email": "finance@rodriguezcorp.com",
+        "company": "Rodriguez Corporation",
+        "phone": "+34-91-555-1234",
+        "addressLine1": "Calle Serrano 45",
+        "addressLine2": "Piso 3",
+        "addressLine3": "",
+        "city": "Madrid",
+        "zip": "28001"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "6011000990139424",
+        "cardType": "MasterCard",
+        "expiryDate": "09/26",
+        "cardHolderName": "Carlos Rodriguez",
+        "cvv": "789",
+        "gateway": "Adyen"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Added New Service", "timestamp": "2024-02-10T16:22:45Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "EUR",
+      "directDebit": true,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": true
+    },
+    "netPayment": 2780.35
+  },
+  {
+    "id": "N5bX3pQzHm8vE7Sy",
+    "customerName": "Yuki Tanaka",
+    "channel": "Web",
+    "customerEmail": "ytanaka@example.jp",
+    "customerPhone": "+81-3-1234-5678",
+
+    "status": "Active",
+    "createdOn": "2023-10-18T07:15:30Z",
+    "billingAddress": [
+      {
+        "country": "Japan",
+        "firstName": "Yuki",
+        "lastName": "Tanaka",
+        "email": "billing@tanakaelectronics.jp",
+        "company": "Tanaka Electronics",
+        "phone": "+81-3-1234-8765",
+        "addressLine1": "1-7-1 Marunouchi",
+        "addressLine2": "Chiyoda Building 5F",
+        "addressLine3": "",
+        "city": "Tokyo",
+        "zip": "100-0005"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "3566002020360505",
+        "cardType": "MasterCard",
+        "expiryDate": "11/25",
+        "cardHolderName": "Yuki Tanaka",
+        "cvv": "321",
+        "gateway": "GMO Payment"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Upgraded Plan", "timestamp": "2024-01-30T04:55:12Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "JPY",
+      "directDebit": false,
+      "taxExemption": false,
+      "consolidatedInvoicing": false,
+      "closureOfInvoice": false
+    },
+    "netPayment": 55000.0
+  },
+  {
+    "id": "K4rD8sWq2PxZ9jLm",
+    "customerName": "Sophie Dubois",
+    "channel": "Web",
+    "customerEmail": "sophie@dubois-design.fr",
+    "customerPhone": "+33-1-4567-8901",
+
+    "status": "Pending",
+    "createdOn": "2023-09-05T15:40:20Z",
+    "billingAddress": [
+      {
+        "country": "France",
+        "firstName": "Sophie",
+        "lastName": "Dubois",
+        "email": "comptabilite@dubois-design.fr",
+        "company": "Dubois Design",
+        "phone": "+33-1-4567-2345",
+        "addressLine1": "15 Rue de Rivoli",
+        "addressLine2": "",
+        "addressLine3": "",
+        "city": "Paris",
+        "zip": "75001"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "5105105105105100",
+        "cardType": "MasterCard",
+        "expiryDate": "04/26",
+        "cardHolderName": "Sophie Dubois",
+        "cvv": "456",
+        "gateway": "WorldPay"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Account Suspended", "timestamp": "2024-02-05T09:12:45Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": false,
+      "preferredCurrency": "EUR",
+      "directDebit": true,
+      "taxExemption": true,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": false
+    },
+    "netPayment": 1650.75
+  },
+  {
+    "id": "R2vB7tNxZ4qM8pSy",
+    "customerName": "Raj Patel",
+    "channel": "Web",
+    "customerEmail": "raj.patel@pateltech.in",
+    "customerPhone": "+91-22-3456-7890",
+
+    "status": "Active",
+    "createdOn": "2023-12-10T12:25:40Z",
+    "billingAddress": [
+      {
+        "country": "India",
+        "firstName": "Raj",
+        "lastName": "Patel",
+        "email": "finance@pateltech.in",
+        "company": "Patel Technologies",
+        "phone": "+91-22-3456-1234",
+        "addressLine1": "405 Cyber Tower",
+        "addressLine2": "Bandra Kurla Complex",
+        "addressLine3": "",
+        "city": "Mumbai",
+        "zip": "400051"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "4012888888881881",
+        "cardType": "Visa",
+        "expiryDate": "08/27",
+        "cardHolderName": "Raj Patel",
+        "cvv": "567",
+        "gateway": "Razorpay"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Added Users", "timestamp": "2024-01-25T10:30:15Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "INR",
+      "directDebit": false,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": false
+    },
+    "netPayment": 85600.5
+  },
+  {
+    "id": "H1zM5xWc9QrV3nJd",
+    "customerName": "Hans Schmidt",
+    "channel": "Web",
+    "customerEmail": "hans.schmidt@schmidt-gmbh.de",
+    "customerPhone": "+49-30-1234-5678",
+
+    "status": "Active",
+    "createdOn": "2024-01-15T09:10:25Z",
+    "billingAddress": [
+      {
+        "country": "Germany",
+        "firstName": "Hans",
+        "lastName": "Schmidt",
+        "email": "finanzen@schmidt-gmbh.de",
+        "company": "Schmidt GmbH",
+        "phone": "+49-30-1234-9876",
+        "addressLine1": "Hauptstraße 42",
+        "addressLine2": "",
+        "addressLine3": "",
+        "city": "Berlin",
+        "zip": "10117"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "4000056655665556",
+        "cardType": "Visa",
+        "expiryDate": "10/26",
+        "cardHolderName": "Hans Schmidt",
+        "cvv": "789",
+        "gateway": "Stripe"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Changed Plan", "timestamp": "2024-02-12T14:45:30Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "EUR",
+      "directDebit": true,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": true
+    },
+    "netPayment": 3250.2
+  },
+  {
+    "id": "T6jF2rGxK8pL1dQv",
+    "customerName": "Maria Silva",
+    "channel": "Web",
+    "customerEmail": "maria@silvatech.com.br",
+    "customerPhone": "+55-11-9876-5432",
+
+    "status": "Cancelled",
+    "createdOn": "2023-08-22T18:30:10Z",
+    "billingAddress": [
+      {
+        "country": "Brazil",
+        "firstName": "Maria",
+        "lastName": "Silva",
+        "email": "financeiro@silvatech.com.br",
+        "company": "Silva Technologies",
+        "phone": "+55-11-9876-1234",
+        "addressLine1": "Av. Paulista 1000",
+        "addressLine2": "Sala 1205",
+        "addressLine3": "",
+        "city": "São Paulo",
+        "zip": "01310-100"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "5200828282828210",
+        "cardType": "MasterCard",
+        "expiryDate": "05/25",
+        "cardHolderName": "Maria Silva",
+        "cvv": "321",
+        "gateway": "PagSeguro"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Account Deactivated", "timestamp": "2024-01-10T13:15:45Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": false,
+      "preferredCurrency": "BRL",
+      "directDebit": false,
+      "taxExemption": true,
+      "consolidatedInvoicing": false,
+      "closureOfInvoice": true
+    },
+    "netPayment": 4850.75
+  },
+  {
+    "id": "B9nZ3vFd7MqX5kPj",
+    "customerName": "Ahmed Hassan",
+    "channel": "Web",
+    "customerEmail": "ahmed@hassangroup.ae",
+    "customerPhone": "+971-4-123-4567",
+
+    "status": "Active",
+    "createdOn": "2024-01-28T10:55:20Z",
+    "billingAddress": [
+      {
+        "country": "UAE",
+        "firstName": "Ahmed",
+        "lastName": "Hassan",
+        "email": "finance@hassangroup.ae",
+        "company": "Hassan Group",
+        "phone": "+971-4-123-7890",
+        "addressLine1": "Sheikh Zayed Road",
+        "addressLine2": "Business Bay Tower, Floor 25",
+        "addressLine3": "",
+        "city": "Dubai",
+        "zip": "12345"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "4111111111111111",
+        "cardType": "Visa",
+        "expiryDate": "11/27",
+        "cardHolderName": "Ahmed Hassan",
+        "cvv": "123",
+        "gateway": "Checkout.com"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Created Account", "timestamp": "2024-01-28T10:55:20Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "AED",
+      "directDebit": false,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": false
+    },
+    "netPayment": 9750.0
+  },
+  {
+    "id": "L7cK2pRq8WdV5zJm",
+    "customerName": "Liu Wei",
+    "channel": "Web",
+    "customerEmail": "wei.liu@liuenterprises.cn",
+    "customerPhone": "+86-10-8765-4321",
+
+    "status": "Active",
+    "createdOn": "2023-11-12T05:40:15Z",
+    "billingAddress": [
+      {
+        "country": "China",
+        "firstName": "Wei",
+        "lastName": "Liu",
+        "email": "billing@liuenterprises.cn",
+        "company": "Liu Enterprises",
+        "phone": "+86-10-8765-1234",
+        "addressLine1": "888 Financial Street",
+        "addressLine2": "Tower B, Floor 15",
+        "addressLine3": "",
+        "city": "Beijing",
+        "zip": "100033"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "3530111333300000",
+        "cardType": "MasterCard",
+        "expiryDate": "06/26",
+        "cardHolderName": "Liu Wei",
+        "cvv": "456",
+        "gateway": "Alipay"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Renewed Subscription", "timestamp": "2024-02-15T07:25:10Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "CNY",
+      "directDebit": false,
+      "taxExemption": false,
+      "consolidatedInvoicing": true,
+      "closureOfInvoice": true
+    },
+    "netPayment": 12500.5
+  },
+  {
+    "id": "S5mP9gHz4NjD6vKw",
+    "customerName": "Olga Petrov",
+    "channel": "Web",
+    "customerEmail": "olga@petrovllc.ru",
+    "customerPhone": "+7-495-123-4567",
+
+    "status": "Active",
+    "createdOn": "2023-10-05T13:20:35Z",
+    "billingAddress": [
+      {
+        "country": "Russia",
+        "firstName": "Olga",
+        "lastName": "Petrov",
+        "email": "finance@petrovllc.ru",
+        "company": "Petrov LLC",
+        "phone": "+7-495-123-8901",
+        "addressLine1": "Tverskaya Street 10",
+        "addressLine2": "Office 205",
+        "addressLine3": "",
+        "city": "Moscow",
+        "zip": "125009"
+      }
+    ],
+    "paymentMethods": [
+      {
+        "cardNumber": "2201382000000013",
+        "cardType": "MasterCard",
+        "expiryDate": "09/26",
+        "cardHolderName": "Olga Petrov",
+        "cvv": "789",
+        "gateway": "Yandex.Checkout"
+      }
+    ],
+    "activityLogs": [
+      { "action": "Added Services", "timestamp": "2024-01-15T11:05:30Z" }
+    ],
+    "language": "English",
+    "configuration": {
+      "language": "English",
+      "autoCollection": true,
+      "preferredCurrency": "RUB",
+      "directDebit": false,
+      "taxExemption": true,
+      "consolidatedInvoicing": false,
+      "closureOfInvoice": false
+    },
+    "netPayment": 75450.0
+  }
+]

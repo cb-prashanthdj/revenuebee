@@ -1,0 +1,118 @@
+[
+  {
+    "site": "acmecorp.chargebee.com",
+    "createdBy": "david.brown@example.com",
+    "expiresOn": "10 Jun 2025",
+    "lastSync": "6 hours ago",
+    "showOptions": false,
+    "isActive": true,
+    "contactedSupport": false,
+    "siteType": "live",
+    "access": {
+      "hasAccess": true,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site111",
+    "teamMembers": [
+      "4"
+    ]
+  },
+  {
+    "site": "acmecorp-sandbox.chargebee.com",
+    "createdBy": "emily.white@example.com",
+    "expiresOn": "20 Jul 2025",
+    "lastSync": "6 hours ago",
+    "showOptions": true,
+    "isActive": true,
+    "contactedSupport": false,
+    "siteType": "sandbox",
+    "access": {
+      "hasAccess": true,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site123",
+    "teamMembers": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "site": "acmecorp-beta.chargebee.com",
+    "createdBy": "michael.johnson@example.com",
+    "expiresOn": "05 May 2025",
+    "lastSync": "6 hours ago",
+    "showOptions": true,
+    "isActive": false,
+    "contactedSupport": false,
+    "siteType": "beta",
+    "access": {
+      "hasAccess": true,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site234",
+    "teamMembers": [
+      "3"
+    ]
+  },
+  {
+    "site": "acmecorp-staging.chargebee.com",
+    "createdBy": "robert.clark@example.com",
+    "expiresOn": "25 Sep 2025",
+    "lastSync": "6 hours ago",
+    "showOptions": true,
+    "isActive": false,
+    "contactedSupport": false,
+    "siteType": "staging",
+    "access": {
+      "hasAccess": true,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site883",
+    "teamMembers": [
+      "4",
+      "2",
+      "5"
+    ]
+  },
+  {
+    "site": "acmecorp-test.chargebee.com",
+    "createdBy": "mark.thomas@example.com",
+    "expiresOn": "24 Nov 2025",
+    "lastSync": "6 hours ago",
+    "showOptions": true,
+    "isActive": true,
+    "contactedSupport": false,
+    "siteType": "test",
+    "access": {
+      "hasAccess": true,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site199",
+    "teamMembers": [
+      "3",
+      "1",
+      "2"
+    ]
+  },
+  {
+    "site": "acmecorp-predev.chargebee.com",
+    "showOptions": false,
+    "isActive": true,
+    "contactedSupport": false,
+    "siteType": "predev",
+    "access": {
+      "hasAccess": false,
+      "accessRequested": false
+    },
+    "siteName": "Acme Corp",
+    "siteId": "site123",
+    "teamMembers": [
+      "4"
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "siteName": "KiloHealth",
+  "activeBusinessEntity": "SITE",
+  "businessEntity": [
+    {
+      "id": "klinio",
+      "name": "Klinio",
+      "businessType": "",
+      "country": "United States",
+      "timezone": "US/Pacific (PST)",
+      "taxId": "AU55667788",
+      "currency": "USD"
+    },
+    {
+      "id": "perfectbody",
+      "name": "Perfect Body",
+      "businessType": "",
+      "country": "United States",
+      "timezone": "US/Pacific (PST)",
+      "taxId": "AU55667789",
+      "currency": "USD"
+    }
+  ]
+}

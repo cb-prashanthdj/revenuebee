@@ -1,0 +1,306 @@
+[
+  {
+    "name": "Starter INR Monthly",
+    "id": "16CRqYUCBrRB88M6",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["klinio"],
+    "customer": "p9GvH2QrT5DkLm3F",
+    "createdAt": "08-May-2024 19:15",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "cbtestcust@cb.com",
+    "paymentMethod": "",
+    "nextRenewal": "08-Mar-2025 19:15",
+    "MRR": 100.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Advanced INR Yearly",
+    "id": "cbdemo_trial_sub",
+    "productFamily": "INR Yearly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["klinio"],
+    "customer": "7JkE9sFr2DnLp4Ht",
+    "createdAt": "07-May-2024 16:39",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "tyler_AT_test.com@example.com",
+    "paymentMethod": "",
+    "nextRenewal": "21-May-2025 23:39",
+    "MRR": 200.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Intermediary INR Monthly",
+    "id": "cbdemo_non_renewing_sub",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["perfectbody"],
+    "customer": "N5bX3pQzHm8vE7Sy",
+    "createdAt": "07-May-2024 16:39",
+    "status": "CANCELLED",
+    "items": [],
+    "billingAddress": "tyler_AT_test.com@example.com",
+    "paymentMethod": "",
+    "nextRenewal": "",
+    "MRR": 0.0,
+    "subscriptionConfig": {
+      "autoCollection": false,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Basic INR Monthly",
+    "id": "cbdemo_cancelled_sub",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["perfectbody"],
+    "customer": "K4rD8sWq2PxZ9jLm",
+    "createdAt": "07-May-2024 16:39",
+    "status": "CANCELLED",
+    "items": [],
+    "billingAddress": "carol_AT_test.com@example.com",
+    "paymentMethod": "",
+    "nextRenewal": "",
+    "MRR": 0.0,
+    "subscriptionConfig": {
+      "autoCollection": false,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Standard INR Monthly",
+    "id": "cbdemo_active_sub",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["perfectbody"],
+    "customer": "R2vB7tNxZ4qM8pSy",
+    "createdAt": "07-May-2024 16:39",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "richard_AT_test.com@example.com",
+    "paymentMethod": "",
+    "nextRenewal": "01-Mar-2025 09:58",
+    "MRR": 675.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Lite INR Monthly",
+    "id": "cbdemo_future_sub",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["klinio"],
+    "customer": "H1zM5xWc9QrV3nJd",
+    "createdAt": "07-May-2024 16:39",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "",
+    "paymentMethod": "",
+    "nextRenewal": "06-Mar-2025 23:39",
+    "MRR": 800.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Premium INR Quarterly",
+    "id": "XQ45rPL87mN9sT2K",
+    "productFamily": "INR Quarterly",
+    "billingFrequency": "Quarterly",
+    "businessEntity": ["klinio"],
+    "customer": "T6jF2rGxK8pL1dQv",
+    "createdAt": "12-May-2024 08:23",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "sarah@example.com",
+    "paymentMethod": "",
+    "nextRenewal": "12-Mar-2025 08:23",
+    "MRR": 450.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Elite INR Yearly",
+    "id": "7BnK3pQ9vX4zT5mR",
+    "productFamily": "INR Yearly",
+    "billingFrequency": "Yearly",
+    "businessEntity": ["perfectbody"],
+    "customer": "B9nZ3vFd7MqX5kPj",
+    "createdAt": "15-May-2024 14:52",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "michael.johnson@company.net",
+    "paymentMethod": "",
+    "nextRenewal": "15-May-2025 14:52",
+    "MRR": 950.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Pro INR Monthly",
+    "id": "5Lj2KpQ9cZ4xV6bN",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["klinio"],
+    "customer": "L7cK2pRq8WdV5zJm",
+    "createdAt": "18-May-2024 11:37",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "david.miller@test.com",
+    "paymentMethod": "",
+    "nextRenewal": "18-Mar-2025 11:37",
+    "MRR": 350.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Ultimate INR Yearly",
+    "id": "9Rt7YhJ2kL4mN6pZ",
+    "productFamily": "INR Yearly",
+    "billingFrequency": "Yearly",
+    "businessEntity": ["perfectbody"],
+    "customer": "S5mP9gHz4NjD6vKw",
+    "createdAt": "22-May-2024 09:14",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "jennifer.wilson@example.org",
+    "paymentMethod": "",
+    "nextRenewal": "22-May-2025 09:14",
+    "MRR": 1200.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Essentials INR Quarterly",
+    "id": "3Mn6Bp7Cq8Ds9EtF",
+    "productFamily": "INR Quarterly",
+    "billingFrequency": "Quarterly",
+    "businessEntity": ["klinio"],
+    "customer": "p9GvH2QrT5DkLm3F",
+    "createdAt": "25-May-2024 15:48",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "emma.brown@mail.com",
+    "paymentMethod": "",
+    "nextRenewal": "25-Feb-2025 15:48",
+    "MRR": 575.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Basic INR Yearly",
+    "id": "2Jk4Lm5Np6Qr7StU",
+    "productFamily": "INR Yearly",
+    "billingFrequency": "Yearly",
+    "businessEntity": ["perfectbody"],
+    "customer": "7JkE9sFr2DnLp4Ht",
+    "createdAt": "28-May-2024 13:05",
+    "status": "CANCELLED",
+    "items": [],
+    "billingAddress": "robert.taylor@domain.com",
+    "paymentMethod": "",
+    "nextRenewal": "",
+    "MRR": 0.0,
+    "subscriptionConfig": {
+      "autoCollection": false,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Silver INR Monthly",
+    "id": "8DfE9gH2jK3lM4nP",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["klinio"],
+    "customer": "N5bX3pQzHm8vE7Sy",
+    "createdAt": "30-May-2024 10:27",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "lisa.garcia@email.net",
+    "paymentMethod": "",
+    "nextRenewal": "30-Mar-2025 10:27",
+    "MRR": 425.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Gold INR Quarterly",
+    "id": "4Qq5Rr6Ss7Tt8UuV",
+    "productFamily": "INR Quarterly",
+    "billingFrequency": "Quarterly",
+    "businessEntity": ["perfectbody"],
+    "customer": "K4rD8sWq2PxZ9jLm",
+    "createdAt": "02-Jun-2024 16:33",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "thomas.martin@company.org",
+    "paymentMethod": "",
+    "nextRenewal": "02-Mar-2025 16:33",
+    "MRR": 750.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Platinum INR Yearly",
+    "id": "1Ga2Hb3Jc4Kd5Le6",
+    "productFamily": "INR Yearly",
+    "billingFrequency": "Yearly",
+    "businessEntity": ["klinio"],
+    "customer": "R2vB7tNxZ4qM8pSy",
+    "createdAt": "05-Jun-2024 12:45",
+    "status": "CANCELLED",
+    "items": [],
+    "billingAddress": "olivia.clark@mail.org",
+    "paymentMethod": "",
+    "nextRenewal": "",
+    "MRR": 0.0,
+    "subscriptionConfig": {
+      "autoCollection": false,
+      "jsonMetaData": {}
+    }
+  },
+  {
+    "name": "Executive INR Monthly",
+    "id": "9Vw8Ux7Ty6Sz5Ra4",
+    "productFamily": "INR Monthly",
+    "billingFrequency": "Monthly",
+    "businessEntity": ["perfectbody"],
+    "customer": "H1zM5xWc9QrV3nJd",
+    "createdAt": "08-Jun-2024 09:18",
+    "status": "ACTIVE",
+    "items": [],
+    "billingAddress": "daniel.white@example.net",
+    "paymentMethod": "",
+    "nextRenewal": "08-Mar-2025 09:18",
+    "MRR": 525.0,
+    "subscriptionConfig": {
+      "autoCollection": true,
+      "jsonMetaData": {}
+    }
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cbdemo_expert",
+    "plan": "Expert",
+    "status": "Active",
+    "statusValue": "Active",
+    "productFamily": "Help Desk",
+    "createdOn": "15-Aug-24 14:30",
+    "displayInCheckout": "Yes",
+    "displayInSelfServe": "Yes"
+  },
+  {
+    "id": "cbdemo_advanced",
+    "plan": "Advanced",
+    "status": "Active",
+    "statusValue": "Active",
+    "productFamily": "Help Desk",
+    "createdOn": "20-Jul-24 10:20",
+    "displayInCheckout": "Yes",
+    "displayInSelfServe": "Yes"
+  },
+  {
+    "id": "cbdemo_essential",
+    "plan": "Essential",
+    "status": "Active",
+    "statusValue": "Active",
+    "productFamily": "Help Desk",
+    "createdOn": "11-Jan-25 14:50",
+    "displayInCheckout": "Yes",
+    "displayInSelfServe": "Yes"
+  }
+]
