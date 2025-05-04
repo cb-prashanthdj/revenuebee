@@ -27,7 +27,7 @@ const AutomateWorkflowModal = ({ isOpen, onClose, onEnable }) => {
                 <SModal.Footer>
                     <SModal.Close asChild>
                         <button
-                            className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md flex items-center"
+                            className="bg-neutral-100 hover:bg-neutral-200 text-black px-4 py-2 rounded-md flex items-center"
                         >Cancel</button>
                     </SModal.Close>
                     <SModal.Close asChild>

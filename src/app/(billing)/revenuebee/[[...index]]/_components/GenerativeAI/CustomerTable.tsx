@@ -61,7 +61,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 <thead className="bg-gray-50">
                 <tr>
                     {selectable && (
-                        <th scope="col" className="relative px-4 py-3 w-10">
+                        <th scope="col" className="relative pt-6 pl-2  w-10 flex justify-center items-center">
                             <input
                                 type="checkbox"
                                 className="absolute h-4 w-4 rounded border-gray-300"

@@ -114,7 +114,6 @@ const Drawer: React.FC<DrawerProps> = ({
                     <Button
                         disabled={selectedCustomerIds.length === 0}
                         onClick={handleSendEmail}
-                        className="s-bg-purple-500 s-text-white s-flex s-items-center"
                     >
                         <Mail size={16} className="s-mr-2" />
                         Send Email ({selectedCustomerIds.length})

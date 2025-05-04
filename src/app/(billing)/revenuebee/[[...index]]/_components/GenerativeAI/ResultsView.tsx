@@ -9,6 +9,7 @@ import EmailModal from "./EmailModal";
 import AutomateWorkflowModal from "./AutomateWorkflowModal";
 import WorkflowDrawer from "./WorkflowDrawer";
 import ReviewEmailDrawer from "./ReviewEmailDrawer";
+import { AppToastProvider, useToast } from "../ToastProvider";
 import { Button } from "cb-sting-react-ts";
 
 // Define a message type for the conversation
@@ -36,11 +37,13 @@ interface SearchResultsViewProps {
     onSearch: (query: string) => void;
 }
 
-const SearchResultsView: React.FC<SearchResultsViewProps> = ({
-                                                                 query,
-                                                                 onBack,
-                                                                 onSearch
-                                                             }) => {
+// Inner component that uses the toast hook
+const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
+                                                                      query,
+                                                                      onBack,
+                                                                      onSearch
+                                                                  }) => {
+    const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [conversation, setConversation] = useState<Message[]>([]);
 
@@ -66,6 +69,7 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
     const [activeSection, setActiveSection] = useState<string | null>(null);
     const [isSelectCustomersMode, setIsSelectCustomersMode] = useState(false);
     const [emailCustomers, setEmailCustomers] = useState<any[]>([]);
+    const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
 
     // Email review state
     const [emailReviewData, setEmailReviewData] = useState({
@@ -177,12 +181,18 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
     const handleViewCustomers = (sectionKey: string) => {
         setActiveSection(sectionKey);
         setIsSelectCustomersMode(false); // Default view mode
+        setSelectedCustomerIds([]); // Clear selection
         setIsCustomerDrawerOpen(true);
     };
 
     // Handle send emails to all customers
     const handleSendAllEmails = () => {
         console.log('Preparing to send emails to all customers');
+    };
+
+    // Handle customer selection change
+    const handleCustomerSelectionChange = (selectedIds: number[]) => {
+        setSelectedCustomerIds(selectedIds);
     };
 
     // Handle selecting customers to email
@@ -207,11 +217,22 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
 
         // Set the customers for email selection
         setEmailCustomers(uniqueCustomers);
+        setSelectedCustomerIds([]);
 
         // Set to selection mode and open drawer
         setIsSelectCustomersMode(true);
         setActiveSection("Select Customers to Email");
         setIsCustomerDrawerOpen(true);
+    };
+
+    // Handle undoing email send
+    const handleUndoEmailSend = () => {
+        showToast({
+            title: "Emails Cancelled",
+            description: "Email sending has been cancelled.",
+            variant: "warning",
+            duration: 3000
+        });
     };
 
     // Handle sending emails to selected customers from the drawer
@@ -245,6 +266,18 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                 timestamp: new Date()
             }
         ]);
+
+        // Show toast notification
+        showToast({
+            title: "Emails Sent Successfully",
+            description: `Payment method update request sent to ${selectedIds.length} customers.`,
+            variant: "success",
+            duration: 5000,
+            action: {
+                label: "Undo",
+                onClick: handleUndoEmailSend
+            }
+        });
     };
 
     // Handle confirming email send from modal
@@ -275,6 +308,18 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                 timestamp: new Date()
             }
         ]);
+
+        // Show toast notification
+        showToast({
+            title: "Emails Sent Successfully",
+            description: `Payment method update request sent to ${totalCustomers} customers.`,
+            variant: "success",
+            duration: 5000,
+            action: {
+                label: "Undo",
+                onClick: handleUndoEmailSend
+            }
+        });
     };
 
     // Handle showing email review drawer
@@ -303,6 +348,14 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                 timestamp: new Date()
             }
         ]);
+
+        // Show toast notification
+        showToast({
+            title: "Workflow Automated",
+            description: "Payment method update workflow has been set up successfully.",
+            variant: "success",
+            duration: 5000
+        });
     };
 
     // Handle viewing workflow
@@ -341,7 +394,7 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
 
                 {/* Conversation area - with more spacing between messages */}
                 <div className="flex-1 p-6 pt-12 pb-24 max-w-4xl mx-auto w-full overflow-y-auto scrollbar-hide">
-                    <div className="space-y-5"> {/* Increased spacing between messages */}
+                    <div className="space-y-5"> {/* Spacing between messages */}
                         {/* Render all messages in the conversation */}
                         {conversation.map((message) => (
                             <div key={message.id}>
@@ -407,7 +460,7 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                                                     </button>
                                                 </EmailModal>
 
-                                                {/* Button to select customers to email - now opens drawer */}
+                                                {/* Button to select customers to email - opens drawer */}
                                                 <button
                                                     className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md flex items-center"
                                                     onClick={handleSelectCustomersToEmail}
@@ -500,7 +553,6 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                     onEnable={handleConfirmAutomateWorkflow}
                 />
 
-
                 {/* Customer List Drawer */}
                 {isSelectCustomersMode ? (
                     <Drawer
@@ -512,7 +564,7 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                         <CustomerTable
                             customers={emailCustomers}
                             selectable={true}
-                            onSelectionChange={(selectedIds) => console.log('Selected IDs:', selectedIds)}
+                            onSelectionChange={handleCustomerSelectionChange}
                         />
                     </Drawer>
                 ) : (
@@ -541,6 +593,15 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                 />
             </div>
         </div>
+    );
+};
+
+// Wrapper component that provides toast context
+const SearchResultsView: React.FC<SearchResultsViewProps> = (props) => {
+    return (
+        <AppToastProvider>
+            <SearchResultsViewInner {...props} />
+        </AppToastProvider>
     );
 };
 
