@@ -113,8 +113,8 @@ const WorkflowDrawer: React.FC<WorkflowDrawerProps> = ({
                             <div className={`w-3 h-3 rounded-full mr-2 ${isPaused ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                             <span className="text-sm font-medium">{isPaused ? 'Paused' : 'Active'}</span>
                         </div>
-                        <button
-                            className={`bg-white text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-sm flex items-center hover:bg-gray-50 ${isPaused ? 'hover:bg-green-50 hover:border-green-300' : 'hover:bg-yellow-50 hover:border-yellow-300'}`}
+                        <Button
+                            variant="neutral"
                             onClick={handleToggleWorkflowStatus}
                         >
                             {isPaused ? (
@@ -128,7 +128,7 @@ const WorkflowDrawer: React.FC<WorkflowDrawerProps> = ({
                                     <span>Pause Workflow</span>
                                 </>
                             )}
-                        </button>
+                        </Button>
                     </div>
                     <div className="bg-white border border-gray-200 rounded-lg shadow w-full max-w-5xl p-4">
                         <div className="mt-4">
@@ -176,18 +176,13 @@ const WorkflowDrawer: React.FC<WorkflowDrawerProps> = ({
                                             max="30"
                                         />
                                         <span className="text-sm mx-2">days before expiry</span>
-                                        <button
-                                            className={`ml-2 border rounded-md px-3 py-1 text-sm flex items-center ${
-                                                hasUnsavedChanges
-                                                    ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100'
-                                                    : 'bg-white text-gray-500 border-gray-300'
-                                            }`}
+                                        <Button
                                             onClick={handleSaveChanges}
                                             disabled={!hasUnsavedChanges}
                                         >
                                             <Save size={14} className="mr-1" />
                                             Save Changes
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>

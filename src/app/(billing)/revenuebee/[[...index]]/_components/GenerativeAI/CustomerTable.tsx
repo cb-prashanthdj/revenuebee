@@ -1,6 +1,6 @@
 // components/CustomerTable.tsx
 import React, { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Badge, Button } from 'cb-sting-react-ts';
 
 interface Customer {
     id: number;
@@ -110,15 +110,17 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                             <div className="text-sm text-gray-900">${customer.mrr.toLocaleString()}</div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    customer.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : customer.status === 'at_risk'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                }`}>
-                  {customer.status}
-                </span>
+                            <Badge
+                                variant={
+                                    customer.status === 'active'
+                                        ? 'success'
+                                        : customer.status === 'at_risk'
+                                            ? 'warning'
+                                            : 'danger'
+                                }
+                            >
+                                {customer.status}
+                            </Badge>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                             {customer.paymentMethod

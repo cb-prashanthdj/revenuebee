@@ -451,23 +451,22 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                                                     onSend={handleConfirmSendEmails}
                                                     customerCount={totalCustomerCount}
                                                 >
-                                                    <button
-                                                        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center"
+                                                    <Button
                                                         onClick={handleSendAllEmails}
                                                     >
                                                         <Mail size={16} className="mr-2" />
                                                         Send emails to all ({totalCustomerCount})
-                                                    </button>
+                                                    </Button>
                                                 </EmailModal>
 
-                                                {/* Button to select customers to email - opens drawer */}
-                                                <button
-                                                    className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md flex items-center"
+
+                                                <Button
+                                                    variant={"neutral"}
                                                     onClick={handleSelectCustomersToEmail}
                                                 >
                                                     <Mail size={16} className="mr-2" />
                                                     Select customers to email
-                                                </button>
+                                                </Button>
                                             </div>
                                         )}
                                     </div>
@@ -485,18 +484,17 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                                         </div>
 
                                         <div className="flex space-x-4">
-                                            <button
-                                                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center"
+                                            <Button
                                                 onClick={handleShowEmail}
                                             >
                                                 Show email
-                                            </button>
-                                            <button
-                                                className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md flex items-center"
+                                            </Button>
+                                            <Button
+                                                variant={"neutral"}
                                                 onClick={handleAutomateWorkflow}
                                             >
                                                 Automate this workflow
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 )}
@@ -506,12 +504,11 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                                     <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
                                         <p className="mb-4">{message.content}</p>
 
-                                        <button
-                                            className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center"
+                                        <Button
                                             onClick={handleViewWorkflow}
                                         >
                                             View Workflow
-                                        </button>
+                                        </Button>
                                     </div>
                                 )}
 

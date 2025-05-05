@@ -25,6 +25,7 @@ const Drawer: React.FC<DrawerProps> = ({
                                            onSendEmail
                                        }) => {
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
+
     // Get appropriate customer data based on section title
     const getCustomerData = () => {
         if (!sectionKey) return [];
@@ -83,7 +84,7 @@ const Drawer: React.FC<DrawerProps> = ({
                 height="full"
                 placement={position}
                 showCloseIcon
-                hasFooter={"true"}
+                hasFooter={true}
                 size="wide"
             >
                 <SDrawer.Header

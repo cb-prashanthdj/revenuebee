@@ -26,15 +26,15 @@ const AutomateWorkflowModal = ({ isOpen, onClose, onEnable }) => {
 
                 <SModal.Footer>
                     <SModal.Close asChild>
-                        <button
-                            className="bg-neutral-100 hover:bg-neutral-200 text-black px-4 py-2 rounded-md flex items-center"
-                        >Cancel</button>
+                        <Button
+                            variant={'neutral'}
+                        >Cancel</Button>
                     </SModal.Close>
                     <SModal.Close asChild>
-                        <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center"
+                        <Button
                            onClick={onEnable}>
                             Enable Workflow
-                        </button>
+                        </Button>
                     </SModal.Close>
                 </SModal.Footer>
             </SModal.Content>

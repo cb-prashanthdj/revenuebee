@@ -78,15 +78,14 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 </SModal.Body>
                 <SModal.Footer>
                     <SModal.Close asChild>
-                        <button
-                            className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md flex items-center">
+                        <Button variant={'neutral'}>
                             Cancel
-                        </button>
+                        </Button>
                     </SModal.Close>
                     <SModal.Close asChild>
-                        <button onClick={() => onSend(fromEmail)} className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center">
+                        <Button onClick={() => onSend(fromEmail)}>
                             Send Emails
-                        </button>
+                        </Button>
                     </SModal.Close>
                 </SModal.Footer>
             </SModal.Content>
