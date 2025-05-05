@@ -1,11 +1,94 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, SendIcon, Zap } from "lucide-react";
+import { Mic, SendIcon, Zap, X } from "lucide-react";
 
 interface SearchBarProps {
     position?: "center" | "bottom" | "top";
     onSearch?: (query: string) => void;
     initialValue?: string;
 }
+
+interface ActionItem {
+    id: string;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+}
+
+// Sample data for action items
+const actionCategories = [
+    {
+        id: "customers",
+        title: "Customers",
+        items: [
+            {
+                id: "customers-at-risk",
+                title: "List customers at risk of churn",
+                description: "Find customers who might churn with MRR > $500",
+                icon: <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">👥</div>
+            },
+            {
+                id: "create-customer",
+                title: "Create customer",
+                description: "Add a new customer to your account",
+                icon: <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">+</div>
+            },
+            {
+                id: "update-customer",
+                title: "Update customer",
+                description: "Modify existing customer details",
+                icon: <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">✏️</div>
+            }
+        ]
+    },
+    {
+        id: "subscriptions",
+        title: "Subscriptions",
+        items: [
+            {
+                id: "view-all-subs",
+                title: "View all subscriptions",
+                description: "Browse and manage active subscriptions",
+                icon: <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">📊</div>
+            },
+            {
+                id: "create-subscription",
+                title: "Create subscription",
+                description: "Start a new subscription for a customer",
+                icon: <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">+</div>
+            },
+            {
+                id: "pause-subscription",
+                title: "Pause subscription",
+                description: "Temporarily pause an active subscription",
+                icon: <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">⏸️</div>
+            }
+        ]
+    },
+    {
+        id: "analytics",
+        title: "Reports & Analytics",
+        items: [
+            {
+                id: "revenue-analytics",
+                title: "Revenue by region",
+                description: "Identify top 10 revenue-generating regions this quarter",
+                icon: <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">📈</div>
+            },
+            {
+                id: "missed-renewals",
+                title: "Missed renewal opportunities",
+                description: "Highlight accounts with missed renewal opportunities",
+                icon: <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">🔍</div>
+            },
+            {
+                id: "user-drop",
+                title: "User activity analysis",
+                description: "Detect unusual drop in weekly active users",
+                icon: <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">📉</div>
+            }
+        ]
+    }
+];
 
 const placeholderOptions = [
     "List customers at risk of churn with MRR > $500",
@@ -25,7 +108,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
     const [placeholder, setPlaceholder] = useState("");
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
+    const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState("customers");
     const typingRef = useRef<NodeJS.Timeout | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const zapButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         setSearchText(initialValue);
@@ -51,6 +138,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
         };
     }, [charIndex, placeholderIndex]);
 
+    // Click outside to close menu
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node) &&
+                zapButtonRef.current &&
+                !zapButtonRef.current.contains(event.target as Node)
+            ) {
+                setIsActionMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(e.target.value);
     };
@@ -59,7 +165,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
         e.preventDefault();
         if (onSearch && searchText.trim()) {
             onSearch(searchText);
+            setIsActionMenuOpen(false);
         }
+    };
+
+    const toggleActionMenu = () => {
+        setIsActionMenuOpen(!isActionMenuOpen);
+    };
+
+    const handleTabChange = (tabId: string) => {
+        setActiveTab(tabId);
+    };
+
+    const handleActionItemClick = (item: ActionItem) => {
+        setSearchText(item.title);
+        if (onSearch) {
+            onSearch(item.title);
+        }
+        setIsActionMenuOpen(false);
     };
 
     const containerStyles =
@@ -75,9 +198,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
         <div className={containerStyles}>
             <form onSubmit={handleSubmit} className="relative">
                 {/* Zap Icon */}
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <button
+                    type="button"
+                    ref={zapButtonRef}
+                    onClick={toggleActionMenu}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors focus:outline-none"
+                >
                     <Zap size={20} />
-                </div>
+                </button>
 
                 {/* Input Box */}
                 <input
@@ -108,6 +236,60 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         <SendIcon size={18} />
                     </button>
                 </div>
+
+                {/* Action Menu */}
+                {isActionMenuOpen && (
+                    <div
+                        ref={menuRef}
+                        className="absolute top-16 left-0 right-0 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+                    >
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="font-semibold text-lg">Actions</h3>
+                            <button
+                                onClick={() => setIsActionMenuOpen(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex border-b">
+                            {actionCategories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => handleTabChange(category.id)}
+                                    className={`px-4 py-3 flex items-center gap-2 ${
+                                        activeTab === category.id
+                                            ? "border-b-2 border-purple-600 text-purple-600 font-medium"
+                                            : "text-gray-600 hover:text-gray-800"
+                                    }`}
+                                >
+                                    {category.title}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Action Items */}
+                        <div className="p-2">
+                            {actionCategories
+                                .find(category => category.id === activeTab)?.items
+                                .map((item) => (
+                                    <div
+                                        key={item.id}
+                                        onClick={() => handleActionItemClick(item)}
+                                        className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        {item.icon}
+                                        <div>
+                                            <h4 className="font-medium">{item.title}</h4>
+                                            <p className="text-sm text-gray-500">{item.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                )}
             </form>
         </div>
     );
