@@ -427,7 +427,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                                                 <p className="text-sm text-gray-600 mb-2">{section.description}</p>
                                                 <div className="flex items-center">
                                                     <span className="text-3xl font-bold mr-2">{section.count}</span>
-                                                    <span className="text-gray-600">items</span>
+                                                    <span className="text-gray-600">USD</span>
                                                 </div>
                                             </div>
                                         ))}
