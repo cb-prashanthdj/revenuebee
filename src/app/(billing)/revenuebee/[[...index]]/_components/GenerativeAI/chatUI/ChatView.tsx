@@ -1,9 +1,12 @@
+// components/chatUI/ChatView.tsx
 import React, { useEffect, useRef } from "react";
-import { Eye, Mail } from "lucide-react";
+import { Eye, Mail, Upload, Edit } from "lucide-react";
 import { Button } from "cb-sting-react-ts";
 import SearchBar from "../../SearchBar";
 import EmailModal from "../EmailModal";
 import ShrinkableHeader from "./ChatHeader";
+import ARAgingSummary from "../ARAgingSummary";
+import PaymentRemainderModal from "@/app/(billing)/revenuebee/[[...index]]/_components/GenerativeAI/overdueFlow/PaymentRemainderModal";
 
 interface Message {
   id: string;
@@ -13,6 +16,7 @@ interface Message {
     analysis: string;
     sections: any[];
     recommendation?: string;
+    suggestedActions?: string[];
   };
   emailSent?: {
     count: number;
@@ -33,7 +37,17 @@ interface Message {
   workflowAutomated?: boolean;
   showABExperiment?: boolean;
   customerList?: boolean;
+  arAgingSummary?: boolean;
   revenueGrowth?: boolean;
+  subscriptionFlow?: {
+    stage:
+      | "initial"
+      | "uploadedDocument"
+      | "processing"
+      | "extracted"
+      | "created";
+    filename?: string;
+  };
   timestamp: Date;
 }
 
@@ -61,6 +75,15 @@ interface ChatViewProps {
   handlePreviewForEU: () => void;
   showABExperiment: () => void;
   totalCustomerCount: number;
+  // AR Aging Summary actions
+  onRequestPaymentMethodUpdate: () => void;
+  onSendPaymentReminders: () => void;
+  onPauseSubscriptions: () => void;
+  onCancelSubscriptions: () => void;
+  // Subscription actions
+  onUploadSubscriptionDocument: () => void;
+  onCreateSubscriptionManually: () => void;
+  onPreviewSubscription: () => void;
 }
 
 const ChatView: React.FC<ChatViewProps> = ({
@@ -84,6 +107,13 @@ const ChatView: React.FC<ChatViewProps> = ({
   handlePreviewForEU,
   showABExperiment,
   totalCustomerCount,
+  onRequestPaymentMethodUpdate,
+  onSendPaymentReminders,
+  onPauseSubscriptions,
+  onCancelSubscriptions,
+  onUploadSubscriptionDocument,
+  onCreateSubscriptionManually,
+  onPreviewSubscription,
 }) => {
   // Ref for auto-scrolling to the latest message
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -98,7 +128,7 @@ const ChatView: React.FC<ChatViewProps> = ({
 
   return (
     <div className="h-full flex flex-col overscroll-none" ref={containerRef}>
-      {/* Use the new ShrinkableHeader component */}
+      {/* Use the ShrinkableHeader component */}
       <ShrinkableHeader
         onBack={onBack}
         onToggleCanvas={onToggleCanvas}
@@ -121,6 +151,91 @@ const ChatView: React.FC<ChatViewProps> = ({
                   </div>
                 )}
 
+                {/* AI response with subscription flow - initial */}
+                {message.type === "ai" &&
+                  message.subscriptionFlow?.stage === "initial" && (
+                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
+                      <p className="mb-4">{message.content}</p>
+                      <div className="flex space-x-4 justify-end">
+                        <Button
+                          fullWidth={true}
+                          onClick={onUploadSubscriptionDocument}
+                          styleType="primary"
+                        >
+                          <Upload size={16} className="mr-2" />
+                          Upload Document (Image/PDF)
+                        </Button>
+                        <Button
+                          fullWidth={true}
+                          onClick={onCreateSubscriptionManually}
+                          styleType="primary"
+                        >
+                          <Edit size={16} className="mr-2" />
+                          Create Manually
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                {/* AI response with subscription flow - uploaded document */}
+                {message.type === "ai" &&
+                  message.subscriptionFlow?.stage === "uploadedDocument" && (
+                    <div className="bg-neutral-25 shadow-sm rounded-lg p-4 max-w-xl">
+                      Uploaded document: {message.subscriptionFlow.filename}
+                    </div>
+                  )}
+
+                {/* AI response with subscription flow - processing */}
+                {message.type === "ai" &&
+                  message.subscriptionFlow?.stage === "processing" && (
+                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
+                      <p>{message.content}</p>
+                    </div>
+                  )}
+
+                {/* AI response with subscription flow - extracted */}
+                {message.type === "ai" &&
+                  message.subscriptionFlow?.stage === "extracted" && (
+                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
+                      <p className="mb-4">{message.content}</p>
+                      <Button
+                        onClick={onPreviewSubscription}
+                        styleType="primary"
+                        className="w-full"
+                      >
+                        Preview And Create Subscription
+                      </Button>
+                    </div>
+                  )}
+
+                {/* AI response with subscription flow - created */}
+                {message.type === "ai" &&
+                  message.subscriptionFlow?.stage === "created" && (
+                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
+                      <p className="mb-4">{message.content}</p>
+                      <Button onClick={onToggleCanvas} styleType="primary">
+                        <Eye size={16} className="mr-2" />
+                        View Subscription
+                      </Button>
+                    </div>
+                  )}
+
+                {/* AI response with AR aging summary */}
+                {message.type === "ai" &&
+                  message.arAgingSummary &&
+                  message.response && (
+                    <ARAgingSummary
+                      sections={message.response.sections}
+                      onViewCustomers={onViewCustomers}
+                      onRequestPaymentMethodUpdate={
+                        onRequestPaymentMethodUpdate
+                      }
+                      onSendPaymentReminders={onSendPaymentReminders}
+                      onPauseSubscriptions={onPauseSubscriptions}
+                      onCancelSubscriptions={onCancelSubscriptions}
+                    />
+                  )}
+
                 {/* AI response with customer list */}
                 {message.type === "ai" && message.customerList && (
                   <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
@@ -133,7 +248,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                   </div>
                 )}
 
-                {/* AI response with customer list */}
+                {/* AI response with revenue growth */}
                 {message.type === "ai" && message?.revenueGrowth && (
                   <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
                     <p className="mb-4">{message.content}</p>
@@ -192,21 +307,24 @@ const ChatView: React.FC<ChatViewProps> = ({
                   </div>
                 )}
 
-                {/* AI response with sections */}
-                {/* {message.type === "ai" &&
-                  message?.response &&
+                {/* AI response with sections - not AR aging summary or subscription flow or revenue growth */}
+                {message.type === "ai" &&
+                  message.response &&
+                  !message.arAgingSummary &&
+                  !message.subscriptionFlow &&
                   !message.revenueGrowth && (
                     <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
                       <p className="mb-6">{message.response.analysis}</p>
 
+                      {/* Result sections */}
                       {message.response.sections.map(
                         (section, sectionIndex) => (
                           <div key={sectionIndex} className="mb-6">
                             <div className="flex justify-between items-center mb-1">
                               <h3 className="font-semibold">{section.title}</h3>
                               <Button
-                                styleType={"icon-borderless"}
-                                variant={"neutral"}
+                                styleType="icon-borderless"
+                                variant="neutral"
                                 onClick={() => onViewCustomers(section.title)}
                               >
                                 <Eye size={18} />
@@ -225,6 +343,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                         )
                       )}
 
+                      {/* Recommendation */}
                       {message.response.recommendation && (
                         <div className="mt-6 p-4 bg-primary-50 rounded-lg">
                           <h4 className="font-semibold text-primary-600 mb-2">
@@ -236,12 +355,14 @@ const ChatView: React.FC<ChatViewProps> = ({
                         </div>
                       )}
 
+                      {/* Action buttons - only on payment-related responses */}
                       {message.response.sections.some(
                         (s) =>
                           s.title.toLowerCase().includes("payment") ||
                           s.description.toLowerCase().includes("payment")
                       ) && (
                         <div className="flex space-x-4 mt-8">
+                          {/* Send emails to all - wrapped in EmailModal */}
                           <EmailModal
                             onSend={onConfirmSendEmails}
                             customerCount={totalCustomerCount}
@@ -262,7 +383,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                         </div>
                       )}
                     </div>
-                  )} */}
+                  )}
 
                 {/* Email sent confirmation */}
                 {message.type === "ai" && message.emailSent && (
@@ -338,7 +459,7 @@ Thank you for choosing AcmeCRM!
 
 Best regards,
 The AcmeCRM Team
-                            `;
+                                                        `;
                           } else {
                             count = 687;
                             content = `
@@ -364,7 +485,7 @@ Thank you for choosing AcmeCRM!
 
 Best regards,
 The AcmeCRM Team
-                            `;
+                                                        `;
                           }
 
                           handleShowUpgradeEmail({ content, count });
@@ -437,7 +558,7 @@ Thank you for choosing AcmeCRM!
 
 Best regards,
 The AcmeCRM Team
-                            `;
+                                                        `;
                           } else if (
                             message?.upgradeEmailSent?.country === "eu"
                           ) {
@@ -465,7 +586,7 @@ Thank you for choosing AcmeCRM!
 
 Best regards,
 The AcmeCRM Team 
-                            `;
+                                                        `;
                           } else {
                             count = 687;
                             content = `
@@ -491,7 +612,7 @@ Thank you for choosing AcmeCRM!
 
 Best regards,
 The AcmeCRM Team
-                            `;
+                                                        `;
                           }
 
                           handleShowUpgradeEmail({ content, count });
@@ -550,7 +671,7 @@ The AcmeCRM Team
                   </div>
                 )}
 
-                {/* Simple AI response (error) */}
+                {/* Simple AI response (error) - default case when no special conditions are met */}
                 {message.type === "ai" &&
                   !message.response &&
                   !message.emailSent &&
@@ -558,11 +679,13 @@ The AcmeCRM Team
                   !message.upgradeEmailSent &&
                   !message.workflowAutomated &&
                   !message.customerList &&
+                  !message.arAgingSummary &&
                   !message.revenueGrowth &&
+                  !message.subscriptionFlow &&
                   !message.sendToUSCustomers &&
                   !message.showABExperiment &&
                   !message.sendToEUCustWithoutOffer && (
-                    <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
+                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
                       <p>{message.content}</p>
                     </div>
                   )}
@@ -584,7 +707,7 @@ The AcmeCRM Team
       </div>
 
       {/* SearchBar at bottom - FIXED */}
-      <div className=" pb-2 px-2 bg-white p-1 ">
+      <div className="pb-2 px-2 bg-white p-1">
         <SearchBar
           onSearch={onNewQuery}
           initialValue=""

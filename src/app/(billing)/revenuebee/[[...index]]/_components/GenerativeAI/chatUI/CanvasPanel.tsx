@@ -1,9 +1,10 @@
-// components/CanvasPanel.tsx
+// components/chatUI/CanvasPanel.tsx
 import React from "react";
 import { X } from "lucide-react";
 import CustomerContent from "../Drawer";
 import EmailContent from "../ReviewEmailDrawer";
 import WorkflowContent from "../WorkflowDrawer";
+import SubscriptionFlow from "../SubscriptionFlow";
 import UpgradeEmail from "../UpgradeEmail";
 import ABExperimentCard from "../ABExperimentCard";
 
@@ -12,6 +13,7 @@ interface CanvasPanelProps {
     | "customers"
     | "workflow"
     | "email"
+    | "subscription"
     | "upgradeEmail"
     | "abExperiment";
   isOpen: boolean;
@@ -22,9 +24,9 @@ interface CanvasPanelProps {
   // Customer content props
   customers?: any[];
   isSelectMode?: boolean;
-  selectedCustomerIds?: number[];
-  onCustomerSelectionChange?: (selectedIds: number[]) => void;
-  onSendEmailToSelected?: (selectedIds: number[]) => void;
+  selectedCustomerIds?: string[] | number[]; // Accept both types
+  onCustomerSelectionChange?: (selectedIds: string[] | number[]) => void; // Accept both types
+  onSendEmailToSelected?: (selectedIds: string[] | number[]) => void;
 
   // Email content props
   emailData?: {
@@ -78,6 +80,16 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
         : `${getCustomerCount ? getCustomerCount() : 0} customers found`;
     }
     return null;
+  };
+
+  // Function to get the appropriate toast hook for components
+  const getToastForComponents = () => {
+    // In a real implementation, you would use your toast context
+    // This is a placeholder function
+    return (props: any) => {
+      console.log("Toast:", props);
+      // Actual implementation would call the real toast function
+    };
   };
 
   return (
@@ -143,6 +155,12 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
           onClose={onClose}
           showFooter={true}
         />
+      )}
+
+      {contentType === "subscription" && (
+        <div className="flex-1 overflow-auto">
+          <SubscriptionFlow onSubmit={onClose} />
+        </div>
       )}
     </div>
   );

@@ -29,20 +29,16 @@ const getCustomerData = (sectionKey?: string | null) => {
     // Filter based on section title
     if (sectionKey.toLowerCase().includes('without payment')) {
         return customerData.filter(c => !c.paymentMethod);
-    } else if (sectionKey.toLowerCase().includes('expired')) {
-        return customerData.filter(c => c.paymentMethod?.isExpired);
     } else if (sectionKey.toLowerCase().includes('soon-to-expire')) {
         return customerData.filter(c =>
-            c.paymentMethod &&
-            !c.paymentMethod.isExpired &&
-            c.paymentMethod.expiresIn < 30
+            c.paymentMethod
         );
     } else if (sectionKey.toLowerCase().includes('at risk')) {
-        return customerData.filter(c => c.status === 'at_risk');
+        return customerData.filter(c => c.paymentMethod === 'at_risk');
     } else if (sectionKey.toLowerCase().includes('active')) {
-        return customerData.filter(c => c.status === 'active');
+        return customerData.filter(c => c.paymentMethod === 'active');
     } else if (sectionKey.toLowerCase().includes('churned')) {
-        return customerData.filter(c => c.status === 'churned');
+        return customerData.filter(c => c.paymentMethod === 'churned');
     }
 
     // Default return all customers
@@ -50,7 +46,6 @@ const getCustomerData = (sectionKey?: string | null) => {
 };
 
 const CustomerContent: React.FC<CustomerContentProps> = ({
-                                                             title,
                                                              children,
                                                              sectionKey,
                                                              onSendEmail,
@@ -59,7 +54,6 @@ const CustomerContent: React.FC<CustomerContentProps> = ({
                                                              isSelectMode = true,
                                                              customers,
                                                              customersCount,
-                                                             onSelectionChange
                                                          }) => {
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
 
