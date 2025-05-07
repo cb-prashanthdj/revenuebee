@@ -198,7 +198,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     return {
       missing: analysis.paymentIssues.noPaymentMethod,
       expired: analysis.paymentIssues.expiredPaymentMethod,
-      expiring: analysis.paymentIssues.expiringSoonPaymentMethod || {
+      expiring: analysis.paymentIssues.expiring || {
         count: 0,
         items: [],
       },
@@ -504,7 +504,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     } else if (sectionKey?.toLowerCase().includes("expired")) {
       return analysis.paymentIssues.expiredPaymentMethod.items;
     } else if (sectionKey?.toLowerCase().includes("soon-to-expire")) {
-      return analysis.paymentIssues.expiringSoonPaymentMethod?.items || [];
+      return analysis.paymentIssues.expiring?.items || [];
     } else if (sectionKey?.toLowerCase().includes("at risk")) {
       return getAllCustomers().filter((c) => c.status === "at_risk");
     } else if (sectionKey?.toLowerCase().includes("active")) {
@@ -1266,7 +1266,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         isOpen={isRemainderEmailModalOpen}
         onClose={() => setRemainderIsEmailModalOpen(false)}
         onSend={() => {}}
-        customerCount={() => getTotalOverdueCount()}
+        customerCount={getTotalOverdueCount()}
       />
 
       {/* Automate Workflow Modal */}
