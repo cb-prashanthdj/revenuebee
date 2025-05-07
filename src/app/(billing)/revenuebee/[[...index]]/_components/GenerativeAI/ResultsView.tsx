@@ -1,13 +1,22 @@
 // components/SearchResultsView.tsx
 import React, { useEffect, useState, useRef } from "react";
 import { AppToastProvider, useToast } from "../ToastProvider";
-import CustomerAnalyzer from "../../../services/CustomerAI";
+import CustomerAnalyzer, { Customer } from "../../../services/CustomerAI";
 import AutomateWorkflowModal from "./AutomateWorkflowModal";
+import PauseSubscriptionsModal from "../GenerativeAI/overdueFlow/PauseSubscriptionModal";
+import CancelSubscriptionsModal from "../GenerativeAI/overdueFlow//CancelSubscriptionModal";
+import EmailModal from "./EmailModal";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
+import {Mail, X} from "lucide-react";
 
 // Import our modular components
 import ChatView from "./chatUI/ChatView";
 import CanvasPanel from "./chatUI/CanvasPanel";
+import ARAgingSummary from "./ARAgingSummary";
+import SubscriptionForm from "./SubscriptionFlow";
+import PaymentRemainderModal
+    from "@/app/(billing)/revenuebee/[[...index]]/_components/GenerativeAI/overdueFlow/PaymentRemainderModal";
+import {Button} from "cb-sting-react-ts";
 
 // Define a message type for the conversation
 interface Message {
@@ -18,6 +27,7 @@ interface Message {
         analysis: string;
         sections: any[];
         recommendation?: string;
+        suggestedActions?: string[];
     };
     emailSent?: {
         count: number;
@@ -26,6 +36,11 @@ interface Message {
     };
     workflowAutomated?: boolean;
     customerList?: boolean;
+    arAgingSummary?: boolean;
+    subscriptionFlow?: {
+        stage: 'initial' | 'uploadedDocument' | 'processing' | 'extracted' | 'created';
+        filename?: string;
+    };
     timestamp: Date;
 }
 
@@ -34,6 +49,43 @@ interface SearchResultsViewProps {
     onBack: () => void;
     onSearch: (query: string) => void;
 }
+
+// Subscription data interface
+interface SubscriptionData {
+    customerId: string;
+    customerEmail: string;
+    plan: string;
+    billingCycles: string;
+    startDate: string;
+    trialEnd: string;
+    quantity: number;
+    autoCollection: string;
+}
+
+// Empty subscription data for initial form
+const emptySubscriptionData: SubscriptionData = {
+    customerId: '',
+    customerEmail: '',
+    plan: 'premium-annual',
+    billingCycles: '12 cycles',
+    startDate: new Date().toISOString().split('T')[0],
+    trialEnd: 'No trial',
+    quantity: 1,
+    autoCollection: 'on'
+};
+
+// Default subscription data for document upload flow
+const defaultSubscriptionData: SubscriptionData = {
+    customerId: 'CUST83797',
+    customerEmail: 'customer3796@example.com',
+    plan: 'premium-annual',
+    billingCycles: '12 cycles',
+    startDate: '2025-05-07',
+    trialEnd: 'No trial',
+    quantity: 2,
+    autoCollection: 'on'
+};
+
 
 // Inner component that uses the toast hook
 const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
@@ -51,13 +103,20 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
 
     // Canvas states
     const [canvasOpen, setCanvasOpen] = useState(false);
-    const [canvasContentType, setCanvasContentType] = useState<'customers' | 'workflow' | 'email'>('customers');
+    const [canvasContentType, setCanvasContentType] = useState<'customers' | 'workflow' | 'email' | 'subscription'>('customers');
+
+    // Form mode for subscription
+    const [formMode, setFormMode] = useState<'edit' | 'preview'>('edit');
 
     // Common states
     const [activeSection, setActiveSection] = useState<string | null>(null);
     const [isSelectCustomersMode, setIsSelectCustomersMode] = useState(false);
     const [emailCustomers, setEmailCustomers] = useState<any[]>([]);
-    const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
+    const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
+
+    // Subscription state
+    const [subscriptionData, setSubscriptionData] = useState<SubscriptionData>(emptySubscriptionData);
+    const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
     // Workflow state (for canvas)
     const [daysBeforeExpiry, setDaysBeforeExpiry] = useState(5);
@@ -65,8 +124,15 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     const [isPaused, setIsPaused] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-    // Modal state
+    // Modal states
     const [isAutomateModalOpen, setIsAutomateModalOpen] = useState(false);
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [isRemainderEmailModalOpen, setRemainderIsEmailModalOpen] = useState(false);
+    const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+    // File input ref for document upload
+    const hiddenFileInput = useRef<HTMLInputElement>(null);
 
     // Email review state
     const [emailReviewData, setEmailReviewData] = useState({
@@ -78,37 +144,18 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     // Generate unique ID for messages
     const generateId = () => `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Initialize customer data
-    const [customerData, setCustomerData] = useState(() => {
-        // Get analyzer data
-        const analyzer = CustomerAnalyzer;
-        const analysis = analyzer.analyzeCustomerData(analyzer.customerData || []);
-
-        return {
-            missing: analysis.paymentIssues.missing,
-            expired: analysis.paymentIssues.expired,
-            expiring: analysis.paymentIssues.expiring
-        };
-    });
-
-    // Get all customer data
-    const getAllCustomers = () => {
-        const analyzer = CustomerAnalyzer;
-        return analyzer.customerData || [];
-    };
-
-    // Get customer data for canvas
-    const getCustomerDataForCanvas = () => {
-        return isSelectCustomersMode ? emailCustomers : getCustomerData(activeSection || "");
-    };
-
-    // Get customer count for display
-    const getCustomerCount = () => {
-        return getCustomerDataForCanvas().length;
-    };
+    // Initialize customer analyzer
+    const [customerAnalyzer] = useState(() => CustomerAnalyzer);
 
     // Get total customer count
-    const totalCustomerCount = customerData.missing.count + customerData.expired.count + customerData.expiring.count;
+    const getTotalOverdueCount = () => {
+        return customerAnalyzer.getTotalOverdueCount();
+    };
+
+    // Get total payment issues count
+    const getTotalPaymentIssuesCount = () => {
+        return customerAnalyzer.getTotalPaymentIssuesCount();
+    };
 
     // Initialize conversation with the first query
     useEffect(() => {
@@ -139,11 +186,41 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         processingQueryRef.current = userQuery;
         setIsLoading(true);
 
+        // Check for subscription creation query
+        if (userQuery.toLowerCase().includes("create subscription")) {
+            setTimeout(() => {
+                // Add AI message to conversation with subscription flow flag
+                setConversation(prev => [
+                    ...prev,
+                    {
+                        id: generateId(),
+                        type: 'ai',
+                        content: "I can help you create a new subscription. How would you like to proceed?",
+                        subscriptionFlow: {
+                            stage: 'initial'
+                        },
+                        timestamp: new Date()
+                    }
+                ]);
+
+                setIsLoading(false);
+                processingQueryRef.current = null;
+
+                showToast({
+                    title: "Subscription Creator",
+                    description: "Choose how you'd like to create a subscription",
+                    variant: "primary",
+                    duration: 3000
+                });
+            }, 1000);
+            return;
+        }
+
         // Check for specific queries
         if (userQuery.toLowerCase().includes("list customers")) {
             // Handle list customers action
             setTimeout(() => {
-                const allCustomers = getAllCustomers();
+                const allCustomers = customerAnalyzer.customerData;
 
                 // Add AI message to conversation with customers list
                 setConversation(prev => [
@@ -169,13 +246,66 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
             return;
         }
 
-        // Use the CustomerAnalyzer service to generate a response
-        const analyzer = CustomerAnalyzer;
+        // Check for overdue or payment-related queries
+        const isOverdueQuery = userQuery.toLowerCase().includes("overdue") ||
+            userQuery.toLowerCase().includes("unpaid") ||
+            userQuery.toLowerCase().includes("aging");
 
-        // Simulate processing time
+        const isPaymentMethodQuery = userQuery.toLowerCase().includes("payment method") ||
+            userQuery.toLowerCase().includes("update payment");
+
+        if (isOverdueQuery || isPaymentMethodQuery) {
+            // Simulate processing time
+            setTimeout(() => {
+                // Get the AI response
+                const aiResponse = customerAnalyzer.generateResponse(userQuery);
+
+                // Add AI message to conversation with AR aging summary for overdue queries
+                if (isOverdueQuery) {
+                    setConversation(prev => [
+                        ...prev,
+                        {
+                            id: generateId(),
+                            type: 'ai',
+                            content: aiResponse.analysis,
+                            arAgingSummary: true,
+                            response: {
+                                analysis: aiResponse.analysis,
+                                sections: aiResponse.sections,
+                                recommendation: aiResponse.recommendation,
+                                suggestedActions: aiResponse.suggestedActions
+                            },
+                            timestamp: new Date()
+                        }
+                    ]);
+                } else {
+                    // Add AI message to conversation with payment method sections
+                    setConversation(prev => [
+                        ...prev,
+                        {
+                            id: generateId(),
+                            type: 'ai',
+                            content: aiResponse.analysis,
+                            response: {
+                                analysis: aiResponse.analysis,
+                                sections: aiResponse.sections,
+                                recommendation: aiResponse.recommendation
+                            },
+                            timestamp: new Date()
+                        }
+                    ]);
+                }
+
+                setIsLoading(false);
+                processingQueryRef.current = null;
+            }, 1500);
+            return;
+        }
+
+        // Use the CustomerAnalyzer service for other queries
         setTimeout(() => {
             // Get the AI response
-            const aiResponse = analyzer.generateResponse(userQuery);
+            const aiResponse = customerAnalyzer.generateResponse(userQuery);
 
             // Add AI message to conversation with response sections
             setConversation(prev => [
@@ -228,35 +358,152 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     // Get filtered customer data based on section key
     const getCustomerData = (sectionKey: string) => {
         // If "All Customers" is selected, return all customers
-        if (sectionKey.toLowerCase() === "all customers") {
-            return getAllCustomers();
+        if (sectionKey?.toLowerCase() === "all customers") {
+            return customerAnalyzer.customerData;
         }
 
-        // Get analyzer data
-        const analyzer = CustomerAnalyzer;
-        const customerData = analyzer.customerData || [];
+        const analysis = customerAnalyzer.analyzeCustomerData();
 
         // Filter based on section title
-        if (sectionKey.toLowerCase().includes('without payment')) {
-            return customerData.filter(c => !c.paymentMethod);
-        } else if (sectionKey.toLowerCase().includes('expired')) {
-            return customerData.filter(c => c.paymentMethod?.isExpired);
-        } else if (sectionKey.toLowerCase().includes('soon-to-expire')) {
-            return customerData.filter(c =>
-                c.paymentMethod &&
-                !c.paymentMethod.isExpired &&
-                c.paymentMethod.expiresIn < 30
-            );
-        } else if (sectionKey.toLowerCase().includes('at risk')) {
-            return customerData.filter(c => c.status === 'at_risk');
-        } else if (sectionKey.toLowerCase().includes('active')) {
-            return customerData.filter(c => c.status === 'active');
-        } else if (sectionKey.toLowerCase().includes('churned')) {
-            return customerData.filter(c => c.status === 'churned');
+        if (sectionKey?.toLowerCase().includes('overdue < 30')) {
+            return analysis.overdueSummary.lessThan30.items;
+        } else if (sectionKey?.toLowerCase().includes('overdue 30-60')) {
+            return analysis.overdueSummary.between30And60.items;
+        } else if (sectionKey?.toLowerCase().includes('overdue 60-90')) {
+            return analysis.overdueSummary.between60And90.items;
+        } else if (sectionKey?.toLowerCase().includes('overdue > 90')) {
+            return analysis.overdueSummary.moreThan90.items;
+        } else if (sectionKey?.toLowerCase().includes('without payment') || sectionKey?.toLowerCase().includes('no payment')) {
+            return analysis.paymentIssues.noPaymentMethod.items;
+        } else if (sectionKey?.toLowerCase().includes('expired')) {
+            return analysis.paymentIssues.expiredPaymentMethod.items;
         }
 
         // Default return all customers
-        return customerData;
+        return customerAnalyzer.customerData;
+    };
+
+    // Handle file input change
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            setUploadedFileName(file.name);
+
+            // Add document upload message to conversation
+            setConversation(prev => [
+                ...prev,
+                {
+                    id: generateId(),
+                    type: 'ai',
+                    content: "",
+                    subscriptionFlow: {
+                        stage: 'uploadedDocument',
+                        filename: file.name
+                    },
+                    timestamp: new Date()
+                }
+            ]);
+
+            // Add processing message after a delay
+            setTimeout(() => {
+                setConversation(prev => [
+                    ...prev,
+                    {
+                        id: generateId(),
+                        type: 'ai',
+                        content: "I'm processing your uploaded document. This will take just a moment...",
+                        subscriptionFlow: {
+                            stage: 'processing'
+                        },
+                        timestamp: new Date()
+                    }
+                ]);
+
+                // Add extracted message after a delay
+                setTimeout(() => {
+                    setSubscriptionData(defaultSubscriptionData);
+                    setConversation(prev => [
+                        ...prev,
+                        {
+                            id: generateId(),
+                            type: 'ai',
+                            content: "I've successfully extracted subscription details from your document. You can review them now.",
+                            subscriptionFlow: {
+                                stage: 'extracted'
+                            },
+                            timestamp: new Date()
+                        }
+                    ]);
+
+                    showToast({
+                        title: "Processing Complete",
+                        description: "Subscription details extracted successfully",
+                        variant: "success",
+                        duration: 3000
+                    });
+                }, 2000);
+            }, 1500);
+        }
+    };
+
+    // Subscription Flow Handlers
+    const handleUploadDocument = () => {
+        // Trigger the hidden file input click
+        if (hiddenFileInput.current) {
+            hiddenFileInput.current.click();
+        }
+    };
+
+    const handleCreateManually = () => {
+        // Reset form with empty data
+        setSubscriptionData(emptySubscriptionData);
+        setFormMode('edit');
+
+        // Open canvas with empty form
+        setCanvasContentType('subscription');
+        setCanvasOpen(true);
+    };
+
+    const handlePreviewSubscription = () => {
+        // Open canvas with form in preview mode using extracted data
+        setFormMode('preview');
+        setSubscriptionData(defaultSubscriptionData); // Use the extracted data
+        setCanvasContentType('subscription');
+        setCanvasOpen(true);
+    };
+
+    const handleSubscriptionCreated = () => {
+        // Close canvas
+        setCanvasOpen(false);
+
+        // Add confirmation message
+        setConversation(prev => [
+            ...prev,
+            {
+                id: generateId(),
+                type: 'ai',
+                content: `Subscription created successfully for ${subscriptionData.customerEmail}`,
+                subscriptionFlow: {
+                    stage: 'created'
+                },
+                timestamp: new Date()
+            }
+        ]);
+
+        showToast({
+            title: "Subscription Created",
+            description: "Your subscription has been created successfully",
+            variant: "success",
+            duration: 3000
+        });
+    };
+
+    const handleSubscriptionFormSubmit = (data: SubscriptionData) => {
+        // Update subscription data
+        setSubscriptionData(data);
+
+        // Handle subscription creation
+        handleSubscriptionCreated();
     };
 
     // Handle opening customer canvas
@@ -268,30 +515,68 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         setCanvasOpen(true);
     };
 
-    // Handle send emails to all customers
-    const handleSendAllEmails = () => {
-        console.log('Preparing to send emails to all customers');
+    // Handle request payment method update
+    const handleRequestPaymentMethodUpdate = () => {
+        const analysis = customerAnalyzer.analyzeCustomerData();
+
+        // Add AI message to conversation with payment method issues
+        setConversation(prev => [
+            ...prev,
+            {
+                id: generateId(),
+                type: 'ai',
+                content: "I'll help you request updated payment methods from these customers with payment issues:",
+                response: {
+                    analysis: "I'll help you request updated payment methods from these customers with payment issues:",
+                    sections: [
+                        {
+                            title: "Customers Without Payment Methods",
+                            description: "These customers have no payment method on file",
+                            count: analysis.paymentIssues.noPaymentMethod.count,
+                            items: analysis.paymentIssues.noPaymentMethod.items
+                        },
+                        {
+                            title: "Customers With Expired Payment Methods",
+                            description: "These customers have payment methods that have expired",
+                            count: analysis.paymentIssues.expiredPaymentMethod.count,
+                            items: analysis.paymentIssues.expiredPaymentMethod.items
+                        }
+                    ],
+                    recommendation: "Send emails to request updated payment methods from these customers."
+                },
+                timestamp: new Date()
+            }
+        ]);
+    };
+
+    // Handle send payment reminders
+    const handleSendPaymentReminders = () => {
+        setIsEmailModalOpen(true);
+    };
+
+    // Handle pause subscriptions
+    const handlePauseSubscriptions = () => {
+        setIsPauseModalOpen(true);
+    };
+
+    // Handle cancel subscriptions
+    const handleCancelSubscriptions = () => {
+        setIsCancelModalOpen(true);
     };
 
     // Handle customer selection change
-    const handleCustomerSelectionChange = (selectedIds: number[]) => {
+    const handleCustomerSelectionChange = (selectedIds: string[]) => {
         setSelectedCustomerIds(selectedIds);
     };
 
     // Handle selecting customers to email
     const handleSelectCustomersToEmail = () => {
-        // Set up the data for the email customer selection
-        const analyzer = CustomerAnalyzer;
+        const analysis = customerAnalyzer.analyzeCustomerData();
 
         // Combine all customers with payment issues
         const allCustomersWithIssues = [
-            ...analyzer.customerData.filter(c => !c.paymentMethod), // Missing
-            ...analyzer.customerData.filter(c => c.paymentMethod?.isExpired), // Expired
-            ...analyzer.customerData.filter(c =>
-                c.paymentMethod &&
-                !c.paymentMethod.isExpired &&
-                c.paymentMethod.expiresIn < 30
-            ) // Soon to expire
+            ...analysis.paymentIssues.noPaymentMethod.items,
+            ...analysis.paymentIssues.expiredPaymentMethod.items
         ];
 
         // Remove duplicates (a customer might appear in multiple categories)
@@ -366,8 +651,8 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
 
     // Handle confirming email send from modal
     const handleConfirmSendEmails = (fromEmail: string) => {
-        // Get total customer count
-        const totalCustomers = customerData.missing.count + customerData.expired.count + customerData.expiring.count;
+        // Get total customer count with payment issues
+        const totalCustomers = getTotalPaymentIssuesCount();
         const now = new Date();
 
         // Store the email data for review
@@ -439,6 +724,55 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
             title: "Workflow Automated",
             description: "Payment method update workflow has been set up successfully.",
             variant: "success",
+            duration: 5000
+        });
+    };
+
+    // Handle confirming pause subscriptions
+    const handleConfirmPauseSubscriptions = () => {
+        setIsPauseModalOpen(false);
+
+        // Add confirmation message
+        setConversation(prev => [
+            ...prev,
+            {
+                id: generateId(),
+                type: 'ai',
+                content: `I've paused subscriptions for ${getTotalOverdueCount()} customers with overdue invoices.`,
+                timestamp: new Date()
+            }
+        ]);
+
+        // Show toast notification
+        showToast({
+            title: "Subscriptions Paused",
+            description: `Successfully paused subscriptions for ${getTotalOverdueCount()} customers.`,
+            variant: "success",
+            duration: 5000
+        });
+    };
+
+    // Handle confirming cancel subscriptions
+    const handleConfirmCancelSubscriptions = () => {
+        // Close the modal
+        setIsCancelModalOpen(false);
+
+        // Add confirmation message
+        setConversation(prev => [
+            ...prev,
+            {
+                id: generateId(),
+                type: 'ai',
+                content: `I've cancelled subscriptions for ${getTotalOverdueCount()} customers with overdue invoices.`,
+                timestamp: new Date()
+            }
+        ]);
+
+        // Show toast notification
+        showToast({
+            title: "Subscriptions Cancelled",
+            description: `Successfully cancelled subscriptions for ${getTotalOverdueCount()} customers.`,
+            variant: "danger",
             duration: 5000
         });
     };
@@ -540,12 +874,34 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
             return "Payment Method Update Request";
         } else if (canvasContentType === 'workflow') {
             return "Payment Method Update Workflow";
+        } else if (canvasContentType === 'subscription') {
+            return formMode === 'edit' ? "Create Subscription" : "Subscription Preview";
         }
         return "Canvas";
     };
 
+    // Get customer count for canvas
+    const getCustomerCount = () => {
+        if (isSelectCustomersMode) {
+            return emailCustomers.length;
+        } else if (activeSection) {
+            return getCustomerData(activeSection).length;
+        }
+        return 0;
+    };
+
+    // @ts-ignore
     return (
         <div className="flex flex-col fixed top-16 left-0 right-0 bottom-0">
+            {/* Hidden file input for document upload */}
+            <input
+                type="file"
+                ref={hiddenFileInput}
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            />
+
             {/* Main content with resizable panels */}
             <ResizablePanelGroup direction="horizontal" className="flex-1">
                 <ResizablePanel
@@ -567,9 +923,18 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                             onShowEmail={handleShowEmail}
                             onAutomateWorkflow={handleAutomateWorkflow}
                             onViewWorkflow={handleViewWorkflow}
-                            onSendAllEmails={handleSendAllEmails}
+                            onSendAllEmails={() => handleSendPaymentReminders()}
                             onConfirmSendEmails={handleConfirmSendEmails}
-                            totalCustomerCount={totalCustomerCount}
+                            totalCustomerCount={getTotalPaymentIssuesCount()}
+                            // AR Aging Summary actions
+                            onRequestPaymentMethodUpdate={handleRequestPaymentMethodUpdate}
+                            onSendPaymentReminders={handleSendPaymentReminders}
+                            onPauseSubscriptions={handlePauseSubscriptions}
+                            onCancelSubscriptions={handleCancelSubscriptions}
+                            // Subscription actions
+                            onUploadSubscriptionDocument={handleUploadDocument}
+                            onCreateSubscriptionManually={handleCreateManually}
+                            onPreviewSubscription={handlePreviewSubscription}
                         />
                     </div>
                 </ResizablePanel>
@@ -579,37 +944,84 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
                         <ResizableHandle withHandle />
                         <ResizablePanel minSize={30}>
                             {/* Canvas Panel */}
-                            <CanvasPanel
-                                contentType={canvasContentType}
-                                isOpen={canvasOpen}
-                                title={getCanvasTitle()}
-                                activeSection={activeSection}
-                                onClose={toggleCanvas}
+                            {canvasContentType === 'subscription' ? (
+                                <div className="h-full flex flex-col">
+                                    <div className="border-b border-gray-200 p-4">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-lg font-bold">{getCanvasTitle()}</h2>
+                                            <button
+                                                onClick={toggleCanvas}
+                                                className="text-gray-400 hover:text-gray-600"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-auto">
+                                        <SubscriptionForm
+                                            initialData={subscriptionData}
+                                            onSubmit={handleSubscriptionFormSubmit}
+                                            initialMode={formMode}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <CanvasPanel
+                                    contentType={canvasContentType}
+                                    isOpen={canvasOpen}
+                                    title={getCanvasTitle()}
+                                    activeSection={activeSection}
+                                    onClose={toggleCanvas}
 
-                                customers={getCustomerDataForCanvas()}
-                                isSelectMode={isSelectCustomersMode}
-                                selectedCustomerIds={selectedCustomerIds}
-                                onCustomerSelectionChange={handleCustomerSelectionChange}
-                                onSendEmailToSelected={handleSendEmailToSelected}
+                                    customers={getCustomerData(activeSection || "")}
+                                    isSelectMode={isSelectCustomersMode}
+                                    selectedCustomerIds={selectedCustomerIds}
+                                    onCustomerSelectionChange={handleCustomerSelectionChange}
+                                    onSendEmailToSelected={handleSendEmailToSelected}
 
-                                emailData={emailReviewData}
+                                    emailData={emailReviewData}
 
-                                workflowData={{
-                                    isPaused,
-                                    daysBeforeExpiry,
-                                    days,
-                                    hasUnsavedChanges
-                                }}
-                                onDaysChange={handleDaysChange}
-                                onSaveWorkflowChanges={handleSaveWorkflowChanges}
-                                onToggleWorkflowStatus={handleToggleWorkflowStatus}
+                                    workflowData={{
+                                        isPaused,
+                                        daysBeforeExpiry,
+                                        days,
+                                        hasUnsavedChanges
+                                    }}
+                                    onDaysChange={handleDaysChange}
+                                    onSaveWorkflowChanges={handleSaveWorkflowChanges}
+                                    onToggleWorkflowStatus={handleToggleWorkflowStatus}
 
-                                getCustomerCount={getCustomerCount}
-                            />
+                                    getCustomerCount={getCustomerCount}
+                                />
+                            )}
                         </ResizablePanel>
                     </>
                 )}
             </ResizablePanelGroup>
+
+            {/* Email Modal */}
+            <EmailModal
+                isOpen={isEmailModalOpen}
+                onClose={() => setIsEmailModalOpen(false)}
+                onSend={handleConfirmSendEmails}
+                customerCount={getTotalPaymentIssuesCount()}
+            />
+
+            {/* Pause Subscriptions Modal */}
+            <PauseSubscriptionsModal
+                isOpen={isPauseModalOpen}
+                onClose={() => setIsPauseModalOpen(false)}
+                onConfirm={handleConfirmPauseSubscriptions}
+                customerCount={getTotalOverdueCount()}
+            />
+
+            {/* Cancel Subscriptions Modal */}
+            <CancelSubscriptionsModal
+                isOpen={isCancelModalOpen}
+                onClose={() => setIsCancelModalOpen(false)}
+                onConfirm={handleConfirmCancelSubscriptions}
+                customerCount={getTotalOverdueCount()}
+            />
 
             {/* Automate Workflow Modal */}
             <AutomateWorkflowModal
@@ -622,7 +1034,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
 };
 
 // Wrapper component that provides toast context
-const SearchResultsView: React.FC<SearchResultsViewProps> = (props) => {
+const ResultsView: React.FC<SearchResultsViewProps> = (props) => {
     return (
         <AppToastProvider>
             <SearchResultsViewInner {...props} />
@@ -630,4 +1042,4 @@ const SearchResultsView: React.FC<SearchResultsViewProps> = (props) => {
     );
 };
 
-export default SearchResultsView;
+export default ResultsView;

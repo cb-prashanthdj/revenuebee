@@ -1,12 +1,13 @@
-// components/CanvasPanel.tsx
+// components/chatUI/CanvasPanel.tsx
 import React from "react";
 import { X } from "lucide-react";
 import CustomerContent from "../Drawer";
 import EmailContent from "../ReviewEmailDrawer";
 import WorkflowContent from "../WorkflowDrawer";
+import SubscriptionFlow from "../SubscriptionFlow";
 
 interface CanvasPanelProps {
-    contentType: 'customers' | 'workflow' | 'email';
+    contentType: 'customers' | 'workflow' | 'email' | 'subscription';
     isOpen: boolean;
     title: string;
     activeSection: string | null;
@@ -15,9 +16,9 @@ interface CanvasPanelProps {
     // Customer content props
     customers?: any[];
     isSelectMode?: boolean;
-    selectedCustomerIds?: number[];
-    onCustomerSelectionChange?: (selectedIds: number[]) => void;
-    onSendEmailToSelected?: (selectedIds: number[]) => void;
+    selectedCustomerIds?: string[] | number[]; // Update to accept both types
+    onCustomerSelectionChange?: (selectedIds: string[] | number[]) => void; // Update to accept both types
+    onSendEmailToSelected?: (selectedIds: string[] | number[]) => void;
 
     // Email content props
     emailData?: {
@@ -71,6 +72,17 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
         return null;
     };
 
+    // Function to get the appropriate toast hook for components
+    const getToastForComponents = () => {
+        // In a real implementation, you would use your toast context
+        // This is a placeholder function
+        return (props: any) => {
+            console.log('Toast:', props);
+            // Actual implementation would call the real toast function
+        };
+    };
+
+    // @ts-ignore
     return (
         <div className="flex flex-col h-full bg-white border-l border-gray-200">
             <div className="border-b border-gray-200 p-4">
@@ -126,6 +138,14 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
                     onClose={onClose}
                     showFooter={true}
                 />
+            )}
+
+            {contentType === 'subscription' && (
+                <div className="flex-1 overflow-auto">
+                    <SubscriptionFlow
+                        onSubmit={onClose}
+                    />
+                </div>
             )}
         </div>
     );

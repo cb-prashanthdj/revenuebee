@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { Mail } from 'lucide-react';
-import { Button, SModal } from 'cb-sting-react-ts';
+import React, {useState} from 'react';
+import {Mail} from 'lucide-react';
+import {Button, SModal} from 'cb-sting-react-ts';
 
 // Define the interface for the EmailModal component
 interface EmailModalProps {
-    onSend: (fromEmail: string) => void;
-    customerCount: number;
-    children?: React.ReactNode; // To accept trigger button as children
+    onSend: (fromEmail: string) => void,
+    customerCount: number,
+    children?: React.ReactNode,
+    isOpen?: boolean,
+    onClose?: () => void
 }
 
 // Create a component that can be used with direct triggers
 const EmailModal: React.FC<EmailModalProps> = ({
                                                    onSend,
                                                    customerCount,
-                                                   children
+                                                   children,
+                                                   isOpen,
+                                                   onClose
                                                }) => {
     const [fromEmail, setFromEmail] = useState('billing@yourcompany.com');
 
@@ -70,7 +74,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
                             <p className="mb-4 bg-gray-100 text-center py-2 rounded-md">[Update Payment Method]</p>
                             <p className="mb-4">Thank you for your prompt attention to this matter.</p>
                             <p>
-                                Best regards,<br />
+                                Best regards,<br/>
                                 Acme Corp
                             </p>
                         </div>

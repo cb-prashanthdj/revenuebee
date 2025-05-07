@@ -1,18 +1,20 @@
 // services/CustomerAI.ts
 
-// Type definitions
 export interface Customer {
-    id: number;
+    id: string;
     name: string;
-    email: string;
+    email?: string;
     mrr: number;
-    status: 'active' | 'at_risk' | 'churned';
-    paymentMethod?: {
-        type: string;
-        isExpired: boolean;
-        expiresIn: number;
-    } | null;
-    lastActivity: number; // days since last activity
+    subscriptionId: string;
+    subscriptionPlan: string;
+    subscriptionStatus: string;
+    invoiceId: string;
+    invoiceDate: string;
+    invoiceStatus: string;
+    unpaidReason: string;
+    daysOverdue: number;
+    paymentMethod: string;
+    paymentMethodStatus: string;
 }
 
 interface AnalysisResult {
@@ -22,16 +24,30 @@ interface AnalysisResult {
         at_risk: number;
         churned: number;
     };
+    overdueSummary: {
+        lessThan30: {
+            count: number;
+            items: Customer[];
+        };
+        between30And60: {
+            count: number;
+            items: Customer[];
+        };
+        between60And90: {
+            count: number;
+            items: Customer[];
+        };
+        moreThan90: {
+            count: number;
+            items: Customer[];
+        }
+    };
     paymentIssues: {
-        missing: {
+        noPaymentMethod: {
             count: number;
             items: Customer[];
         };
-        expired: {
-            count: number;
-            items: Customer[];
-        };
-        expiring: {
+        expiredPaymentMethod: {
             count: number;
             items: Customer[];
         };
@@ -54,351 +70,386 @@ interface AIResponse {
         items: Customer[];
     }>;
     recommendation: string;
+    suggestedActions?: string[];
 }
 
 export class CustomerAnalyzer {
-    // Make the customerData property public for direct access
-    public customerData: Customer[] = [
-        {
-            id: 1,
-            name: 'Acme Corp',
-            email: 'billing@acmecorp.com',
-            mrr: 1200,
-            status: 'active',
-            paymentMethod: { type: 'credit_card', isExpired: false, expiresIn: 45 },
-            lastActivity: 5
-        },
-        {
-            id: 2,
-            name: 'Global Tech',
-            email: 'accounts@globaltech.com',
-            mrr: 2500,
-            status: 'at_risk',
-            paymentMethod: { type: 'credit_card', isExpired: true, expiresIn: -10 },
-            lastActivity: 15
-        },
-        {
-            id: 3,
-            name: 'Initech LLC',
-            email: 'finance@initech.com',
-            mrr: 980,
-            status: 'active',
-            paymentMethod: null,
-            lastActivity: 8
-        },
-        {
-            id: 4,
-            name: 'Massive Dynamic',
-            email: 'billing@massivedynamic.com',
-            mrr: 5400,
-            status: 'active',
-            paymentMethod: { type: 'bank_transfer', isExpired: false, expiresIn: 180 },
-            lastActivity: 2
-        },
-        {
-            id: 5,
-            name: 'Cyberdyne Systems',
-            email: 'ar@cyberdyne.com',
-            mrr: 3200,
-            status: 'active',
-            paymentMethod: { type: 'credit_card', isExpired: false, expiresIn: 12 },
-            lastActivity: 4
-        },
-        {
-            id: 6,
-            name: 'Umbrella Corp',
-            email: 'payments@umbrella.com',
-            mrr: 1800,
-            status: 'churned',
-            paymentMethod: { type: 'credit_card', isExpired: true, expiresIn: -45 },
-            lastActivity: 60
-        },
-        {
-            id: 7,
-            name: 'Stark Industries',
-            email: 'accounting@stark.com',
-            mrr: 8900,
-            status: 'active',
-            paymentMethod: { type: 'bank_transfer', isExpired: false, expiresIn: 90 },
-            lastActivity: 1
-        },
-        {
-            id: 8,
-            name: 'Wayne Enterprises',
-            email: 'ap@wayne.com',
-            mrr: 7500,
-            status: 'at_risk',
-            paymentMethod: null,
-            lastActivity: 30
-        },
-        {
-            id: 9,
-            name: 'Hooli',
-            email: 'billing@hooli.com',
-            mrr: 4200,
-            status: 'active',
-            paymentMethod: { type: 'credit_card', isExpired: false, expiresIn: 5 },
-            lastActivity: 3
-        },
-        {
-            id: 10,
-            name: 'Pied Piper',
-            email: 'richard@piedpiper.com',
-            mrr: 950,
-            status: 'churned',
-            paymentMethod: { type: 'credit_card', isExpired: true, expiresIn: -5 },
-            lastActivity: 45
-        },
-        {
-            id: 11,
-            name: 'Dunder Mifflin',
-            email: 'accounting@dundermifflin.com',
-            mrr: 1100,
-            status: 'active',
-            paymentMethod: { type: 'bank_transfer', isExpired: false, expiresIn: 60 },
-            lastActivity: 7
-        }
-    ];
+    public customerData: Customer[] = [];
+    private dataLoaded: boolean = false;
 
     constructor() {
-        console.log('CustomerAnalyzer initialized with sample data');
+        this.loadCustomerData();
+    }
+
+    private async loadCustomerData() {
+        try {
+            // Try to load JSON data from the specified path
+            const response = await fetch('../data/IPE_data.json');
+
+            if (response.ok) {
+                const jsonData = await response.json();
+
+                // Map JSON data to our Customer interface
+                this.customerData = jsonData.map((row: any, index: number) => ({
+                    id: row['Customer ID'] || `customer_${index}`,
+                    name: row['Customer Name'] || 'Unknown Customer',
+                    mrr: parseFloat(row['MRR ($)']) || 0,
+                    subscriptionId: row['Subscription ID'] || '',
+                    subscriptionPlan: row['Subscription Plan'] || '',
+                    subscriptionStatus: row['Subscription Status'] || '',
+                    invoiceId: row['Invoice ID'] || '',
+                    invoiceDate: row['Invoice Date'] || '',
+                    invoiceStatus: row['Invoice Status'] || '',
+                    unpaidReason: row['Unpaid Reason'] || '',
+                    daysOverdue: parseInt(row['Days Overdue']) || 0,
+                    paymentMethod: row['Payment Method'] || '',
+                    paymentMethodStatus: row['Payment Method Status'] || ''
+                }));
+
+                console.log('JSON data loaded successfully:', this.customerData.length, 'customers');
+                this.dataLoaded = true;
+            } else {
+                console.warn('Could not load JSON data, using fallback data');
+                this.setupFallbackData();
+            }
+        } catch (error) {
+            console.error('Error loading customer data:', error);
+            this.setupFallbackData();
+        }
+    }
+
+    // Setup fallback data if JSON cannot be loaded
+    private setupFallbackData() {
+        // Create sample data to match the counts in screenshots
+        this.generateSampleData();
+
+        this.dataLoaded = true;
+        console.log('Using fallback data with', this.customerData.length, 'sample customers');
+    }
+
+    // Generate sample data to match the counts in screenshots
+    private generateSampleData() {
+        const companies = [
+            "TechSoft", "InnovateCorp", "FutureTech", "DataSystems",
+            "MegaCorp", "Skyline Industries", "Quantum Solutions", "GlobalServe",
+            "PeakPerformance", "BlueOcean", "RedMountain", "SilverLake",
+            "GreenField", "BlackRock", "WhiteSand", "YellowStone"
+        ];
+
+        // Generate customers with < 30 days overdue to reach 42 total
+        for (let i = 0; i < 42; i++) {
+            const company = companies[Math.floor(Math.random() * companies.length)];
+            this.customerData.push({
+                id: `C${2000 + i}`,
+                name: `${company} ${i}`,
+                mrr: Math.floor(Math.random() * 5000) + 500,
+                subscriptionId: `S${2000 + i}`,
+                subscriptionPlan: "Professional",
+                subscriptionStatus: "Active",
+                invoiceId: `INV${2000 + i}`,
+                invoiceDate: "2025-04-15",
+                invoiceStatus: "Unpaid",
+                unpaidReason: "Customer Delay",
+                daysOverdue: Math.floor(Math.random() * 29) + 1,
+                paymentMethod: Math.random() > 0.3 ? "Credit Card" : "",
+                paymentMethodStatus: Math.random() > 0.5 ? "Active" : "Expired"
+            });
+        }
+
+        // Generate customers with 30-60 days overdue to reach 28 total
+        for (let i = 0; i < 28; i++) {
+            const company = companies[Math.floor(Math.random() * companies.length)];
+            this.customerData.push({
+                id: `C${3000 + i}`,
+                name: `${company} ${i}`,
+                mrr: Math.floor(Math.random() * 5000) + 500,
+                subscriptionId: `S${3000 + i}`,
+                subscriptionPlan: "Professional",
+                subscriptionStatus: "Active",
+                invoiceId: `INV${3000 + i}`,
+                invoiceDate: "2025-03-01",
+                invoiceStatus: "Unpaid",
+                unpaidReason: "Customer Delay",
+                daysOverdue: Math.floor(Math.random() * 30) + 30,
+                paymentMethod: Math.random() > 0.3 ? "Credit Card" : "",
+                paymentMethodStatus: Math.random() > 0.5 ? "Active" : "Expired"
+            });
+        }
+
+        // Generate customers with 60-90 days overdue to reach 15 total
+        for (let i = 0; i < 15; i++) {
+            const company = companies[Math.floor(Math.random() * companies.length)];
+            this.customerData.push({
+                id: `C${4000 + i}`,
+                name: `${company} ${i}`,
+                mrr: Math.floor(Math.random() * 5000) + 500,
+                subscriptionId: `S${4000 + i}`,
+                subscriptionPlan: "Professional",
+                subscriptionStatus: "At Risk",
+                invoiceId: `INV${4000 + i}`,
+                invoiceDate: "2025-02-01",
+                invoiceStatus: "Unpaid",
+                unpaidReason: "Customer Delay",
+                daysOverdue: Math.floor(Math.random() * 30) + 60,
+                paymentMethod: Math.random() > 0.3 ? "Credit Card" : "",
+                paymentMethodStatus: Math.random() > 0.5 ? "Active" : "Expired"
+            });
+        }
+
+        // Generate customers with > 90 days overdue to reach 9 total
+        for (let i = 0; i < 9; i++) {
+            const company = companies[Math.floor(Math.random() * companies.length)];
+            this.customerData.push({
+                id: `C${5000 + i}`,
+                name: `${company} ${i}`,
+                mrr: Math.floor(Math.random() * 5000) + 500,
+                subscriptionId: `S${5000 + i}`,
+                subscriptionPlan: "Professional",
+                subscriptionStatus: "At Risk",
+                invoiceId: `INV${5000 + i}`,
+                invoiceDate: "2025-01-01",
+                invoiceStatus: "Unpaid",
+                unpaidReason: "Customer Delay",
+                daysOverdue: Math.floor(Math.random() * 100) + 90,
+                paymentMethod: Math.random() > 0.3 ? "Credit Card" : "",
+                paymentMethodStatus: Math.random() > 0.5 ? "Active" : "Expired"
+            });
+        }
+
+        // Generate payment method issues data
+        // 24 customers without payment method
+        for (let i = 0; i < 24; i++) {
+            const existingCustomer = this.customerData[Math.floor(Math.random() * this.customerData.length)];
+            existingCustomer.paymentMethod = "";
+            existingCustomer.paymentMethodStatus = "";
+        }
+
+        // 15 customers with expired payment methods
+        for (let i = 0; i < 15; i++) {
+            const existingCustomer = this.customerData.find(c => c.paymentMethod !== "");
+            if (existingCustomer) {
+                existingCustomer.paymentMethodStatus = "Expired";
+            }
+        }
     }
 
     // Analyze customer data to get comprehensive statistics
-    analyzeCustomerData(customers: Customer[]): AnalysisResult {
-        // Count customers by status
-        const statusCounts = {
-            active: customers.filter(c => c.status === 'active').length,
-            at_risk: customers.filter(c => c.status === 'at_risk').length,
-            churned: customers.filter(c => c.status === 'churned').length
-        };
+    analyzeCustomerData(): AnalysisResult {
+        // For demo purpose, if data not loaded yet, return empty analysis
+        if (!this.dataLoaded || this.customerData.length === 0) {
+            return this.getEmptyAnalysisResult();
+        }
+
+        // Group customers by overdue days
+        const lessThan30 = this.customerData.filter(c =>
+            c.daysOverdue > 0 && c.daysOverdue < 30 &&
+            c.invoiceStatus?.toLowerCase() === 'unpaid');
+
+        const between30And60 = this.customerData.filter(c =>
+            c.daysOverdue >= 30 && c.daysOverdue < 60 &&
+            c.invoiceStatus?.toLowerCase() === 'unpaid');
+
+        const between60And90 = this.customerData.filter(c =>
+            c.daysOverdue >= 60 && c.daysOverdue < 90 &&
+            c.invoiceStatus?.toLowerCase() === 'unpaid');
+
+        const moreThan90 = this.customerData.filter(c =>
+            c.daysOverdue >= 90 &&
+            c.invoiceStatus?.toLowerCase() === 'unpaid');
 
         // Payment method issues
-        const missingPaymentMethod = customers.filter(c => !c.paymentMethod);
-        const expiredPaymentMethods = customers.filter(c => c.paymentMethod?.isExpired);
-        const soonToExpirePaymentMethods = customers.filter(c =>
-            c.paymentMethod && !c.paymentMethod.isExpired && c.paymentMethod.expiresIn < 30
-        );
+        const noPaymentMethod = this.customerData.filter(c =>
+            !c.paymentMethod || c.paymentMethod.toLowerCase() === 'none' ||
+            c.paymentMethod.trim() === '');
+
+        const expiredPaymentMethod = this.customerData.filter(c =>
+            c.paymentMethodStatus?.toLowerCase() === 'expired');
+
+        // Status breakdown
+        const statusCounts = {
+            active: this.customerData.filter(c =>
+                c.subscriptionStatus?.toLowerCase() === 'active').length,
+            at_risk: this.customerData.filter(c =>
+                c.invoiceStatus?.toLowerCase() === 'unpaid' && c.daysOverdue > 30).length,
+            churned: this.customerData.filter(c =>
+                c.subscriptionStatus?.toLowerCase() === 'cancelled' ||
+                c.subscriptionStatus?.toLowerCase() === 'churned').length
+        };
 
         // MRR analysis
-        const totalMRR = customers.reduce((sum, c) => sum + c.mrr, 0);
-        const activeCustomerCount = customers.filter(c => c.status === 'active').length;
-        const averageMRR = activeCustomerCount > 0 ?
-            totalMRR / activeCustomerCount :
-            0;
+        const totalMRR = this.customerData.reduce((sum, c) => sum + (c.mrr || 0), 0);
+        const activeCustomers = this.customerData.filter(c =>
+            c.subscriptionStatus?.toLowerCase() === 'active');
+        const averageMRR = activeCustomers.length > 0 ?
+            totalMRR / activeCustomers.length : 0;
 
-        const mrAtRisk = customers
-            .filter(c => c.status === 'at_risk')
-            .reduce((sum, c) => sum + c.mrr, 0);
+        const overdueMRR = this.customerData
+            .filter(c => c.invoiceStatus?.toLowerCase() === 'unpaid' && c.daysOverdue > 0)
+            .reduce((sum, c) => sum + (c.mrr || 0), 0);
 
         return {
-            customerCount: customers.length,
+            customerCount: this.customerData.length,
             statusBreakdown: statusCounts,
+            overdueSummary: {
+                lessThan30: {
+                    count: lessThan30.length,
+                    items: lessThan30
+                },
+                between30And60: {
+                    count: between30And60.length,
+                    items: between30And60
+                },
+                between60And90: {
+                    count: between60And90.length,
+                    items: between60And90
+                },
+                moreThan90: {
+                    count: moreThan90.length,
+                    items: moreThan90
+                }
+            },
             paymentIssues: {
-                missing: {
-                    count: missingPaymentMethod.length,
-                    items: missingPaymentMethod
+                noPaymentMethod: {
+                    count: noPaymentMethod.length,
+                    items: noPaymentMethod
                 },
-                expired: {
-                    count: expiredPaymentMethods.length,
-                    items: expiredPaymentMethods
-                },
-                expiring: {
-                    count: soonToExpirePaymentMethods.length,
-                    items: soonToExpirePaymentMethods
+                expiredPaymentMethod: {
+                    count: expiredPaymentMethod.length,
+                    items: expiredPaymentMethod
                 }
             },
             revenueMetrics: {
                 totalMRR,
                 averageMRR,
-                mrAtRisk,
-                percentageAtRisk: totalMRR > 0 ? (mrAtRisk / totalMRR) * 100 : 0
+                mrAtRisk: overdueMRR,
+                percentageAtRisk: totalMRR > 0 ? (overdueMRR / totalMRR) * 100 : 0
+            }
+        };
+    }
+
+    private getEmptyAnalysisResult(): AnalysisResult {
+        return {
+            customerCount: 0,
+            statusBreakdown: { active: 0, at_risk: 0, churned: 0 },
+            overdueSummary: {
+                lessThan30: { count: 0, items: [] },
+                between30And60: { count: 0, items: [] },
+                between60And90: { count: 0, items: [] },
+                moreThan90: { count: 0, items: [] }
+            },
+            paymentIssues: {
+                noPaymentMethod: { count: 0, items: [] },
+                expiredPaymentMethod: { count: 0, items: [] }
+            },
+            revenueMetrics: {
+                totalMRR: 0,
+                averageMRR: 0,
+                mrAtRisk: 0,
+                percentageAtRisk: 0
             }
         };
     }
 
     // Generate AI response based on a user query
     generateResponse(query: string): AIResponse {
-        // Analyze current sample customer data
-        const analysis = this.analyzeCustomerData(this.customerData);
+        // Analyze current customer data
+        const analysis = this.analyzeCustomerData();
 
         // Default response structure
         let response: AIResponse = {
             title: query,
             analysis: "I'm analyzing your request. Here's what I found:",
             sections: [],
-            recommendation: ""
+            recommendation: "",
+            suggestedActions: []
         };
 
         // Simple pattern matching for different query types
         const q = query.toLowerCase();
 
+        // Overdue customers query
+        if (q.includes('overdue') || q.includes('unpaid') || q.includes('aging')) {
+            response.analysis = "Here's the AR aging summary of customers with overdue invoices:";
+
+            response.sections = [
+                {
+                    title: "Overdue < 30 Days",
+                    description: "Customers with invoices overdue less than 30 days",
+                    count: analysis.overdueSummary.lessThan30.count,
+                    items: analysis.overdueSummary.lessThan30.items
+                },
+                {
+                    title: "Overdue 30-60 Days",
+                    description: "Customers with invoices overdue between 30 and 60 days",
+                    count: analysis.overdueSummary.between30And60.count,
+                    items: analysis.overdueSummary.between30And60.items
+                },
+                {
+                    title: "Overdue 60-90 Days",
+                    description: "Customers with invoices overdue between 60 and 90 days",
+                    count: analysis.overdueSummary.between60And90.count,
+                    items: analysis.overdueSummary.between60And90.items
+                },
+                {
+                    title: "Overdue > 90 Days",
+                    description: "Customers with invoices overdue more than 90 days",
+                    count: analysis.overdueSummary.moreThan90.count,
+                    items: analysis.overdueSummary.moreThan90.items
+                }
+            ];
+
+            response.recommendation = "Consider taking action on customers with invoices overdue for more than 30 days.";
+            response.suggestedActions = [
+                "Request updated payment method",
+                "Send payment reminder emails",
+                "Pause subscriptions",
+                "Cancel subscriptions"
+            ];
+        }
         // Payment method query
-        if (q.includes('payment') || q.includes('subscription') || q.includes('expired')) {
-            response.sections = [
-                {
-                    title: "Customers Without Payment Methods",
-                    description: "These customers have no payment method on file",
-                    count: analysis.paymentIssues.missing.count,
-                    items: analysis.paymentIssues.missing.items
-                },
-                {
-                    title: "Customers With Expired Payment Methods",
-                    description: "These customers have payment methods that have expired",
-                    count: analysis.paymentIssues.expired.count,
-                    items: analysis.paymentIssues.expired.items
-                },
-                {
-                    title: "Customers With Soon-to-Expire Payment Methods",
-                    description: "These customers have payment methods that will expire in the next 30 days",
-                    count: analysis.paymentIssues.expiring.count,
-                    items: analysis.paymentIssues.expiring.items
-                }
-            ];
-
-            response.recommendation = "Consider automating payment method update reminders to reduce revenue at risk.";
-        }
-        // Risk or churn query
-        else if (q.includes('risk') || q.includes('churn') || q.includes('at risk')) {
-            const atRiskCustomers = this.customerData.filter(c => c.status === 'at_risk');
-            const highMRRAtRisk = [...atRiskCustomers].sort((a, b) => b.mrr - a.mrr);
+        else if (q.includes('payment method') || q.includes('update payment')) {
+            response.analysis = "I'll help you request updated payment methods from these overdue customers with payment issues:";
 
             response.sections = [
                 {
-                    title: "At-Risk Customers Summary",
-                    description: `You have ${atRiskCustomers.length} customers at risk of churning`,
-                    count: atRiskCustomers.length,
-                    items: atRiskCustomers
+                    title: "Overdue Customers Without Payment Methods",
+                    description: "Overdue customers with no payment method on file",
+                    count: analysis.paymentIssues.noPaymentMethod.count,
+                    items: analysis.paymentIssues.noPaymentMethod.items
                 },
                 {
-                    title: "MRR at Risk",
-                    description: `$${analysis.revenueMetrics.mrAtRisk.toLocaleString()} in monthly recurring revenue is at risk`,
-                    count: Math.round(analysis.revenueMetrics.mrAtRisk),
-                    items: []
-                },
-                {
-                    title: "High-Value At-Risk Customers",
-                    description: "These are your highest MRR customers at risk of churning",
-                    count: highMRRAtRisk.length,
-                    items: highMRRAtRisk.slice(0, 5)  // Top 5
+                    title: "Overdue Customers With Expired Payment Methods",
+                    description: "Overdue customers with payment methods that have expired",
+                    count: analysis.paymentIssues.expiredPaymentMethod.count,
+                    items: analysis.paymentIssues.expiredPaymentMethod.items
                 }
             ];
 
-            response.recommendation = "Schedule account reviews with high-value at-risk customers within the next 7 days.";
+            response.recommendation = "Send emails to request updated payment methods from these customers.";
         }
-        // Revenue or MRR query
-        else if (q.includes('revenue') || q.includes('mrr') || q.includes('money')) {
-            const activeCustomers = this.customerData.filter(c => c.status === 'active');
-            const topMRRCustomers = [...this.customerData].sort((a, b) => b.mrr - a.mrr);
-
-            response.sections = [
-                {
-                    title: "Revenue Overview",
-                    description: `Total MRR: $${analysis.revenueMetrics.totalMRR.toLocaleString()}`,
-                    count: Math.round(analysis.revenueMetrics.totalMRR),
-                    items: []
-                },
-                {
-                    title: "Active Customers",
-                    description: `You have ${activeCustomers.length} active customers with an average MRR of $${Math.round(analysis.revenueMetrics.averageMRR).toLocaleString()}`,
-                    count: activeCustomers.length,
-                    items: activeCustomers
-                },
-                {
-                    title: "Top Customers by MRR",
-                    description: "These are your highest value customers",
-                    count: topMRRCustomers.length > 5 ? 5 : topMRRCustomers.length,
-                    items: topMRRCustomers.slice(0, 5)  // Top 5
-                }
-            ];
-
-            response.recommendation = "Consider implementing a tiered customer success program focusing on your top 20% of customers by MRR.";
-        }
-        // Customer-related query
-        else if (q.includes('customer') || q.includes('client') || q.includes('account')) {
-            const activeCustomers = this.customerData.filter(c => c.status === 'active');
-            const recentlyActiveCustomers = [...this.customerData]
-                .sort((a, b) => a.lastActivity - b.lastActivity)
-                .slice(0, 5);
-
-            response.sections = [
-                {
-                    title: "Customer Status Overview",
-                    description: `Active: ${analysis.statusBreakdown.active}, At Risk: ${analysis.statusBreakdown.at_risk}, Churned: ${analysis.statusBreakdown.churned}`,
-                    count: analysis.customerCount,
-                    items: []
-                },
-                {
-                    title: "Active Customers",
-                    description: `${activeCustomers.length} customers are currently active`,
-                    count: activeCustomers.length,
-                    items: activeCustomers
-                },
-                {
-                    title: "Recently Active Customers",
-                    description: "These customers have been active in the last few days",
-                    count: recentlyActiveCustomers.length,
-                    items: recentlyActiveCustomers
-                }
-            ];
-
-            response.recommendation = "Consider implementing a customer health score system to proactively identify at-risk customers.";
-        }
-        // Default/general query
+        // Default to overdue customers if no specific query match
         else {
-            response.sections = [
-                {
-                    title: "Customer Status Overview",
-                    description: `Active: ${analysis.statusBreakdown.active}, At Risk: ${analysis.statusBreakdown.at_risk}, Churned: ${analysis.statusBreakdown.churned}`,
-                    count: analysis.customerCount,
-                    items: []
-                },
-                {
-                    title: "Payment Method Issues",
-                    description: `${analysis.paymentIssues.missing.count + analysis.paymentIssues.expired.count + analysis.paymentIssues.expiring.count} customers have payment method issues`,
-                    count: analysis.paymentIssues.missing.count + analysis.paymentIssues.expired.count + analysis.paymentIssues.expiring.count,
-                    items: [
-                        ...analysis.paymentIssues.missing.items,
-                        ...analysis.paymentIssues.expired.items,
-                        ...analysis.paymentIssues.expiring.items
-                    ]
-                },
-                {
-                    title: "Revenue Summary",
-                    description: `Total MRR: $${analysis.revenueMetrics.totalMRR.toLocaleString()}, with ${analysis.revenueMetrics.percentageAtRisk.toFixed(1)}% at risk`,
-                    count: Math.round(analysis.revenueMetrics.totalMRR),
-                    items: []
-                }
-            ];
-
-            response.recommendation = "Focus on resolving payment method issues to secure revenue and implement a customer health scoring system to reduce churn.";
+            // Use the overdue customers response as default
+            return this.generateResponse("Show overdue customers");
         }
 
         return response;
     }
 
-    // Helper method to get filtered customers based on criteria
-    getFilteredCustomers(criteria: string): Customer[] {
-        if (criteria.toLowerCase().includes('without payment')) {
-            return this.customerData.filter(c => !c.paymentMethod);
-        } else if (criteria.toLowerCase().includes('expired')) {
-            return this.customerData.filter(c => c.paymentMethod?.isExpired);
-        } else if (criteria.toLowerCase().includes('soon-to-expire')) {
-            return this.customerData.filter(c =>
-                c.paymentMethod &&
-                !c.paymentMethod.isExpired &&
-                c.paymentMethod.expiresIn < 30
-            );
-        } else if (criteria.toLowerCase().includes('at risk')) {
-            return this.customerData.filter(c => c.status === 'at_risk');
-        } else if (criteria.toLowerCase().includes('active')) {
-            return this.customerData.filter(c => c.status === 'active');
-        } else if (criteria.toLowerCase().includes('churned')) {
-            return this.customerData.filter(c => c.status === 'churned');
-        }
+    // Get the total count of overdue customers
+    getTotalOverdueCount(): number {
+        const analysis = this.analyzeCustomerData();
+        return analysis.overdueSummary.lessThan30.count +
+            analysis.overdueSummary.between30And60.count +
+            analysis.overdueSummary.between60And90.count +
+            analysis.overdueSummary.moreThan90.count;
+    }
 
-        // Default return all customers
-        return this.customerData;
+    // Get the total count of customers with payment issues
+    getTotalPaymentIssuesCount(): number {
+        const analysis = this.analyzeCustomerData();
+        return analysis.paymentIssues.noPaymentMethod.count +
+            analysis.paymentIssues.expiredPaymentMethod.count;
     }
 }
 
