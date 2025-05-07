@@ -7,6 +7,7 @@ import WorkflowContent from "../WorkflowDrawer";
 import SubscriptionFlow from "../SubscriptionFlow";
 import UpgradeEmail from "../UpgradeEmail";
 import PaymentRemainderMailDrawer from "../../GenerativeAI/overdueFlow/PaymentRemainderMailDrawer";
+import ABExperimentCard from "../ABExperimentCard";
 
 interface CanvasPanelProps {
   contentType:
@@ -166,6 +167,8 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
           <SubscriptionFlow onSubmit={onClose} />
         </div>
       )}
+
+      {contentType === "abExperiment" && <ABExperimentCard />}
     </div>
   );
 };
