@@ -61,7 +61,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
   // Canvas states
   const [canvasOpen, setCanvasOpen] = useState(false);
   const [canvasContentType, setCanvasContentType] = useState<
-    "customers" | "workflow" | "email" | "upgradeEmail"
+    "customers" | "workflow" | "email" | "upgradeEmail" | "abExperiment"
   >("customers");
 
   // Common states
@@ -519,7 +519,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         emailReview: {
           count: 200,
           fromEmail: "",
-          country: 'eu'
+          country: "eu",
         },
         timestamp: new Date(),
       },
@@ -551,6 +551,22 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         timestamp: new Date(),
       },
     ]);
+
+    if (country === "eu") {
+      setTimeout(() => {
+        setConversation((prev) => [
+          ...prev,
+          {
+            id: generateId(),
+            type: "ai",
+            content:
+              "✅ I've also created an A/B experiment: 'Free to Paid – US (with offer) vs EU (no offer)'",
+            showABExperiment: true,
+            timestamp: new Date(),
+          },
+        ]);
+      }, 1500);
+    }
   };
 
   // Handle showing email review in canvas
@@ -725,6 +741,10 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
               handleShowUpgradeEmail={handleShowUpgradeEmail}
               handleSendUpgradeEmail={handleSendUpgradeEmail}
               handlePreviewForEU={handlePreviewForEU}
+              showABExperiment={() => {
+                setCanvasContentType("abExperiment");
+                setCanvasOpen(true);
+              }}
             />
           </div>
         </ResizablePanel>

@@ -31,6 +31,7 @@ interface Message {
   sendToEUCustWithoutOffer?: boolean;
   sendToUSCustomers?: boolean;
   workflowAutomated?: boolean;
+  showABExperiment?: boolean;
   customerList?: boolean;
   revenueGrowth?: boolean;
   timestamp: Date;
@@ -58,6 +59,7 @@ interface ChatViewProps {
   }) => void;
   handleSendUpgradeEmail: (count: number, country: string) => void;
   handlePreviewForEU: () => void;
+  showABExperiment: () => void;
   totalCustomerCount: number;
 }
 
@@ -80,6 +82,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   handleShowUpgradeEmail,
   handleSendUpgradeEmail,
   handlePreviewForEU,
+  showABExperiment,
   totalCustomerCount,
 }) => {
   // Ref for auto-scrolling to the latest message
@@ -141,12 +144,13 @@ const ChatView: React.FC<ChatViewProps> = ({
                             You have 687 customers on the free plan
                           </h5>
                           <p className="text-gray-600 mt-1">
-                            Reach out to them with a limited-time discount to encourage upgrades
+                            Reach out to them with a limited-time discount to
+                            encourage upgrades
                           </p>
-                          <div className="mt-4">
+                          <div className="mt-1">
                             <Button
-                                fullWidth
-                                onClick={() => onEditPreview(687)}
+                              fullWidth
+                              onClick={() => onEditPreview(687)}
                             >
                               Send Upgrade Emails
                             </Button>
@@ -158,13 +162,11 @@ const ChatView: React.FC<ChatViewProps> = ({
                             Several paying customers have recently churned
                           </h5>
                           <p className="text-gray-600 mt-1">
-                            Set up a guided cancellation flow to capture reasons and offer retention options
+                            Set up a guided cancellation flow to capture reasons
+                            and offer retention options
                           </p>
-                          <div className="mt-4">
-                            <Button
-                                fullWidth
-                                onClick={() => {}}
-                            >
+                          <div className="mt-1">
+                            <Button fullWidth onClick={() => {}}>
                               Set up cancellation experience
                             </Button>
                           </div>
@@ -172,16 +174,15 @@ const ChatView: React.FC<ChatViewProps> = ({
 
                         <div className="flex flex-col p-4 border rounded-lg shadow-sm">
                           <h5 className="m-0 p-0 font-medium text-lg">
-                            Your pricing page has high traffic but low conversions
+                            Your pricing page has high traffic but low
+                            conversions
                           </h5>
                           <p className="text-gray-600 mt-1">
-                            Run an A/B test on layout or messaging to boost conversions
+                            Run an A/B test on layout or messaging to boost
+                            conversions
                           </p>
-                          <div className="mt-4">
-                            <Button
-                                fullWidth
-                                onClick={() => {}}
-                            >
+                          <div className="mt-1">
+                            <Button fullWidth onClick={() => {}}>
                               Start Pricing Page A/B test
                             </Button>
                           </div>
@@ -296,7 +297,13 @@ const ChatView: React.FC<ChatViewProps> = ({
 
                     <div className="mb-4 bg-neutral-25 rounded-md flex items-center justify-between">
                       <div className="p-4">
-                        <h4 className="mb-0">Upgrade offer email</h4>
+                        <h4 className="mb-0">
+                          {message?.emailReview?.country === "eu"
+                            ? "Upgrade Email for EU Customers (No Offer)"
+                            : message?.emailReview?.country === "us"
+                            ? "Upgrade offer email"
+                            : "Upgrade offer email"}
+                        </h4>
                         <p className="text-lightest mb-0">
                           To: {message.emailReview.count} customers
                         </p>
@@ -365,46 +372,10 @@ The AcmeCRM Team
                       >
                         <Eye size={18} />
                       </Button>
-                      {/* <Button
-                        className="mr-2"
-                        variant="neutral"
-                        onClick={() =>
-                          handleShowUpgradeEmail({
-                            content: `
-                        Subject: Upgrade now and get 10% off — limited-time offer!
-
-Dear Customer,
-
-You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
-
-We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
-
-With Premium, you'll get:
-- Unlimited contacts
-- Advanced automation
-- Priority support
-- Custom reporting
-
-This offer expires in 7 days.
-
-[Upgrade Now]
-
-Thank you for choosing AcmeCRM!
-
-Best regards,
-The AcmeCRM Team    
-                        `,
-                            count: 687,
-                          })
-                        }
-                      >
-                        <Eye size={18} />
-                      </Button> */}
                     </div>
 
                     <Button
                       fullWidth
-                      //   onClick={() => handleSendUpgradeEmail(687, null)}
                       onClick={() => {
                         if (message?.emailReview?.country === "eu") {
                           handleSendUpgradeEmail(200, "eu");
@@ -425,7 +396,13 @@ The AcmeCRM Team
 
                     <div className="mb-4 bg-neutral-25 rounded-md flex items-center justify-between">
                       <div className="p-4">
-                        <h4 className="mb-0">Upgrade offer email</h4>
+                        <h4 className="mb-0">
+                          {message?.upgradeEmailSent?.country === "eu"
+                            ? "Upgrade Email (No Offer)"
+                            : message?.upgradeEmailSent?.country === "us"
+                            ? "Upgrade offer email"
+                            : "Upgrade offer email"}
+                        </h4>
                         <p className="text-lightest mb-0">
                           To: {message.upgradeEmailSent.count} customers
                         </p>
@@ -522,41 +499,6 @@ The AcmeCRM Team
                       >
                         <Eye size={18} />
                       </Button>
-                      {/* <Button
-                        onClick={() =>
-                          handleShowUpgradeEmail({
-                            content: `
-                        Subject: Upgrade now and get 10% off — limited-time offer!
-
-Dear Customer,
-
-You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
-
-We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
-
-With Premium, you'll get:
-- Unlimited contacts
-- Advanced automation
-- Priority support
-- Custom reporting
-
-This offer expires in 7 days.
-
-[Upgrade Now]
-
-Thank you for choosing AcmeCRM!
-
-Best regards,
-The AcmeCRM Team    
-                        `,
-                            count: 687,
-                          })
-                        }
-                        className="mr-2"
-                        variant="neutral"
-                      >
-                        <Eye size={18} />
-                      </Button> */}
                     </div>
                   </div>
                 )}
@@ -573,48 +515,6 @@ The AcmeCRM Team
                     >
                       Yes, proceed
                     </Button>
-
-                    {/* <div className="mb-4 bg-neutral-25 rounded-md flex items-center justify-between">
-                      <div className="p-4">
-                        <h4 className="mb-0">Upgrade offer email</h4>
-                        <p className="text-lightest mb-0">To: 350 customers</p>
-                      </div>
-                      <Button
-                        onClick={() =>
-                          handleShowUpgradeEmail({
-                            content: `
-Subject: Upgrade now and get 10% off — limited-time offer!
-
-Dear Customer,
-
-You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
-
-We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
-
-With Premium, you'll get:
-- Unlimited contacts
-- Advanced automation
-- Priority support
-- Custom reporting
-
-This message is exclusive to our valued US customers.
-
-[Upgrade Now]
-
-Thank you for choosing AcmeCRM!
-
-Best regards,
-The AcmeCRM Team
-                        `,
-                            count: 350,
-                          })
-                        }
-                        className="mr-2"
-                        variant="neutral"
-                      >
-                        <Eye size={18} />
-                      </Button>
-                    </div> */}
                   </div>
                 )}
 
@@ -625,6 +525,18 @@ The AcmeCRM Team
 
                     <Button fullWidth onClick={handlePreviewForEU}>
                       Yes, proceed
+                    </Button>
+                  </div>
+                )}
+
+                {/* start AB testing */}
+                {message.type === "ai" && message?.showABExperiment && (
+                  <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
+                    <p className="mb-4">{message.content}</p>
+
+                    <Button fullWidth onClick={showABExperiment}>
+                      <Eye size={18} />
+                      View experiment
                     </Button>
                   </div>
                 )}
@@ -648,6 +560,7 @@ The AcmeCRM Team
                   !message.customerList &&
                   !message.revenueGrowth &&
                   !message.sendToUSCustomers &&
+                  !message.showABExperiment &&
                   !message.sendToEUCustWithoutOffer && (
                     <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
                       <p>{message.content}</p>

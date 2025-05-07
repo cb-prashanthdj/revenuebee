@@ -5,9 +5,15 @@ import CustomerContent from "../Drawer";
 import EmailContent from "../ReviewEmailDrawer";
 import WorkflowContent from "../WorkflowDrawer";
 import UpgradeEmail from "../UpgradeEmail";
+import ABExperimentCard from "../ABExperimentCard";
 
 interface CanvasPanelProps {
-  contentType: "customers" | "workflow" | "email" | "upgradeEmail";
+  contentType:
+    | "customers"
+    | "workflow"
+    | "email"
+    | "upgradeEmail"
+    | "abExperiment";
   isOpen: boolean;
   title: string;
   activeSection: string | null;
@@ -122,6 +128,8 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
           emailData={emailData}
         />
       )}
+
+      {contentType === "abExperiment" && <ABExperimentCard />}
 
       {contentType === "workflow" && workflowData && (
         <WorkflowContent
