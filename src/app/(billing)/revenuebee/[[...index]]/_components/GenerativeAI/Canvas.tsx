@@ -117,6 +117,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
         switch (contentType) {
             case 'customers':
+                // @ts-ignore
                 return (
                     <div className="flex flex-col h-full">
                         <CustomerTable
