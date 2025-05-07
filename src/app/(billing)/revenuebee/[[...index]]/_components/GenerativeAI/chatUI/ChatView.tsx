@@ -132,16 +132,59 @@ const ChatView: React.FC<ChatViewProps> = ({
                 {message.type === "ai" && message?.revenueGrowth && (
                   <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
                     <p className="mb-4">{message.content}</p>
-                    <div className="grid gap-2">
-                      <Button fullWidth onClick={() => onEditPreview(687)}>
-                        Send Upgrade Emails
-                      </Button>
-                      <Button fullWidth onClick={() => {}}>
-                        Set up cancellation experience
-                      </Button>
-                      <Button fullWidth onClick={() => {}}>
-                        Start Pricing Page A/B test
-                      </Button>
+                    <div className="grid gap-2 space-y-1">
+                      <div className="grid gap-6">
+                        <div className="flex flex-col p-4 border rounded-lg shadow-sm">
+                          <h5 className="m-0 p-0 font-medium text-lg">
+                            You have 687 customers on the free plan
+                          </h5>
+                          <p className="text-gray-600 mt-1">
+                            Reach out to them with a limited-time discount to encourage upgrades
+                          </p>
+                          <div className="mt-4">
+                            <Button
+                                fullWidth
+                                onClick={() => onEditPreview(687)}
+                            >
+                              Send Upgrade Emails
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col p-4 border rounded-lg shadow-sm">
+                          <h5 className="m-0 p-0 font-medium text-lg">
+                            Several paying customers have recently churned
+                          </h5>
+                          <p className="text-gray-600 mt-1">
+                            Set up a guided cancellation flow to capture reasons and offer retention options
+                          </p>
+                          <div className="mt-4">
+                            <Button
+                                fullWidth
+                                onClick={() => {}}
+                            >
+                              Set up cancellation experience
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col p-4 border rounded-lg shadow-sm">
+                          <h5 className="m-0 p-0 font-medium text-lg">
+                            Your pricing page has high traffic but low conversions
+                          </h5>
+                          <p className="text-gray-600 mt-1">
+                            Run an A/B test on layout or messaging to boost conversions
+                          </p>
+                          <div className="mt-4">
+                            <Button
+                                fullWidth
+                                onClick={() => {}}
+                            >
+                              Start Pricing Page A/B test
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
