@@ -80,6 +80,7 @@ interface ChatViewProps {
   onSendPaymentReminders: () => void;
   onPauseSubscriptions: () => void;
   onCancelSubscriptions: () => void;
+  onShowRemainerEmail: () => void;
   // Subscription actions
   onUploadSubscriptionDocument: () => void;
   onCreateSubscriptionManually: () => void;
@@ -97,6 +98,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   onViewCustomers,
   onSelectCustomersToEmail,
   onShowEmail,
+  onShowRemainerEmail,
   onAutomateWorkflow,
   onViewWorkflow,
   onSendAllEmails,
@@ -180,8 +182,10 @@ const ChatView: React.FC<ChatViewProps> = ({
                 {/* AI response with subscription flow - uploaded document */}
                 {message.type === "ai" &&
                   message.subscriptionFlow?.stage === "uploadedDocument" && (
-                    <div className="bg-neutral-25 shadow-sm rounded-lg p-4 max-w-xl">
-                      Uploaded document: {message.subscriptionFlow.filename}
+                    <div className="flex justify-end mb-10">
+                      <div className="bg-brand-deep-dark text-white shadow-sm rounded-lg p-4 max-w-xl">
+                        Uploaded document: {message.subscriptionFlow.filename}
+                      </div>
                     </div>
                   )}
 
@@ -230,6 +234,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                       onRequestPaymentMethodUpdate={
                         onRequestPaymentMethodUpdate
                       }
+                      onShowRemainerEmail={onShowRemainerEmail}
                       onSendPaymentReminders={onSendPaymentReminders}
                       onPauseSubscriptions={onPauseSubscriptions}
                       onCancelSubscriptions={onCancelSubscriptions}
