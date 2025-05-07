@@ -97,7 +97,7 @@ const ChatView: React.FC<ChatViewProps> = ({
 
                                 {/* AI response with customer list */}
                                 {message.type === 'ai' && message.customerList && (
-                                    <div className="bg-neutral-300 rounded-lg p-6 shadow-sm max-w-xl">
+                                    <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
                                         <p className="mb-4">{message.content}</p>
                                         <div className="flex justify-end">
                                             <Button

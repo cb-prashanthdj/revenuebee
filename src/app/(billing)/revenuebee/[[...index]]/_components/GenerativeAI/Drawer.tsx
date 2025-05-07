@@ -1,20 +1,21 @@
 // components/CustomerContent.tsx
-import React, { useState } from 'react';
-import { Button } from 'cb-sting-react-ts';
+import React, {useState} from 'react';
+import {Button} from 'cb-sting-react-ts';
 import CustomerTable from './CustomerTable';
 import CustomerAnalyzer from '../../../services/CustomerAI';
-import { Mail } from 'lucide-react';
+import {Mail} from 'lucide-react';
 
 interface CustomerContentProps {
-    title: string;
-    children?: React.ReactNode;
-    sectionKey?: string | null;
-    onSendEmail?: (selectedCustomers: number[]) => void;
-    onClose?: () => void;
-    showFooter?: boolean;
-    isSelectMode?: boolean;
-    customers?: any[]; // Custom customers list
-    customersCount?: number; // For displaying count
+    title: string,
+    children?: React.ReactNode,
+    sectionKey?: string | null,
+    onSendEmail?: (selectedCustomers: number[]) => void,
+    onClose?: () => void,
+    showFooter?: boolean,
+    isSelectMode?: boolean,
+    customers?: any[],
+    customersCount?: number,
+    onSelectionChange?: (selectedIds: number[]) => void
 }
 
 // Get appropriate customer data based on section title
@@ -57,7 +58,8 @@ const CustomerContent: React.FC<CustomerContentProps> = ({
                                                              showFooter = false,
                                                              isSelectMode = true,
                                                              customers,
-                                                             customersCount
+                                                             customersCount,
+                                                             onSelectionChange
                                                          }) => {
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
 
@@ -105,7 +107,7 @@ const CustomerContent: React.FC<CustomerContentProps> = ({
                             disabled={selectedCustomerIds.length === 0}
                             onClick={handleSendEmail}
                         >
-                            <Mail size={16} className="mr-2" />
+                            <Mail size={16} className="mr-2"/>
                             Send Email ({selectedCustomerIds.length})
                         </Button>
                     )}

@@ -295,6 +295,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         ];
 
         // Remove duplicates (a customer might appear in multiple categories)
+        // @ts-ignore
         const uniqueCustomers = [...new Map(allCustomersWithIssues.map(c => [c.id, c])).values()];
 
         // Set the customers for email selection
