@@ -519,6 +519,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         emailReview: {
           count: 200,
           fromEmail: "",
+          country: 'eu'
         },
         timestamp: new Date(),
       },
@@ -535,7 +536,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     }));
   };
 
-  const handleSendUpgradeEmail = (count) => {
+  const handleSendUpgradeEmail = (count, country = null) => {
     setConversation((prev) => [
       ...prev,
       {
@@ -545,6 +546,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         upgradeEmailSent: {
           count,
           sentAt: new Date(),
+          country,
         },
         timestamp: new Date(),
       },

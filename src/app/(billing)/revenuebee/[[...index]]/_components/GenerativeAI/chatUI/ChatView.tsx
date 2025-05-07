@@ -22,9 +22,11 @@ interface Message {
   emailReview?: {
     count: number;
     fromEmail?: string;
+    country?: string;
   };
   upgradeEmailSent?: {
     count: number;
+    country?: string;
   };
   sendToEUCustWithoutOffer?: boolean;
   sendToUSCustomers?: boolean;
@@ -54,7 +56,7 @@ interface ChatViewProps {
     content: string;
     count?: number;
   }) => void;
-  handleSendUpgradeEmail: (count: number) => void;
+  handleSendUpgradeEmail: (count: number, country: string) => void;
   handlePreviewForEU: () => void;
   totalCustomerCount: number;
 }
@@ -302,6 +304,70 @@ const ChatView: React.FC<ChatViewProps> = ({
                       <Button
                         className="mr-2"
                         variant="neutral"
+                        onClick={() => {
+                          let content, count;
+                          if (message?.emailReview?.country === "eu") {
+                            count = 200;
+                            content = `
+Subject: Unlock premium features with an upgrade
+
+Dear Customer,
+
+You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
+
+We'd like to invite you to explore our Premium plan, which offers significant enhancements to help grow your business.
+
+With Premium, you'll get:
+- Unlimited contacts
+- Advanced automation
+- Priority support
+- Custom reporting
+
+This message is exclusive to our valued EU customers.
+
+[Upgrade Now]
+
+Thank you for choosing AcmeCRM!
+
+Best regards,
+The AcmeCRM Team
+                            `;
+                          } else {
+                            count = 687;
+                            content = `
+Subject: Upgrade now and get 10% off — limited-time offer!
+
+Dear Customer,
+
+You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
+
+We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
+
+With Premium, you'll get:
+- Unlimited contacts
+- Advanced automation
+- Priority support
+- Custom reporting
+
+This offer expires in 7 days.
+
+[Upgrade Now]
+
+Thank you for choosing AcmeCRM!
+
+Best regards,
+The AcmeCRM Team
+                            `;
+                          }
+
+                          handleShowUpgradeEmail({ content, count });
+                        }}
+                      >
+                        <Eye size={18} />
+                      </Button>
+                      {/* <Button
+                        className="mr-2"
+                        variant="neutral"
                         onClick={() =>
                           handleShowUpgradeEmail({
                             content: `
@@ -333,12 +399,19 @@ The AcmeCRM Team
                         }
                       >
                         <Eye size={18} />
-                      </Button>
+                      </Button> */}
                     </div>
 
                     <Button
                       fullWidth
-                      onClick={() => handleSendUpgradeEmail(687)}
+                      //   onClick={() => handleSendUpgradeEmail(687, null)}
+                      onClick={() => {
+                        if (message?.emailReview?.country === "eu") {
+                          handleSendUpgradeEmail(200, "eu");
+                        } else {
+                          handleSendUpgradeEmail(687, null);
+                        }
+                      }}
                     >
                       Send {message.emailReview.count} emails
                     </Button>
@@ -358,6 +431,98 @@ The AcmeCRM Team
                         </p>
                       </div>
                       <Button
+                        variant="neutral"
+                        className="mr-2"
+                        onClick={() => {
+                          let content, count;
+                          if (message.upgradeEmailSent.country === "us") {
+                            count = 350;
+                            content = `
+Subject: Upgrade now and get 10% off — limited-time offer!
+
+Dear Customer,
+
+You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
+
+We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
+
+With Premium, you'll get:
+- Unlimited contacts
+- Advanced automation
+- Priority support
+- Custom reporting
+
+This message is exclusive to our valued US customers.
+
+[Upgrade Now]
+
+Thank you for choosing AcmeCRM!
+
+Best regards,
+The AcmeCRM Team
+                            `;
+                          } else if (
+                            message?.upgradeEmailSent?.country === "eu"
+                          ) {
+                            count = 200;
+                            content = `
+Subject: Unlock premium features with an upgrade
+
+Dear Customer,
+
+You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
+
+We'd like to invite you to explore our Premium plan, which offers significant enhancements to help grow your business.
+
+With Premium, you'll get:
+- Unlimited contacts
+- Advanced automation
+- Priority support
+- Custom reporting
+
+This message is exclusive to our valued EU customers.
+
+[Upgrade Now]
+
+Thank you for choosing AcmeCRM!
+
+Best regards,
+The AcmeCRM Team 
+                            `;
+                          } else {
+                            count = 687;
+                            content = `
+Subject: Upgrade now and get 10% off — limited-time offer!
+
+Dear Customer,
+
+You've been using AcmeCRM on the free plan. We appreciate your continued use of our platform.
+
+We'd like to offer you a special limited-time discount: Upgrade today and enjoy 10% off for the first year of our Premium plan.
+
+With Premium, you'll get:
+- Unlimited contacts
+- Advanced automation
+- Priority support
+- Custom reporting
+
+This message is exclusive to our valued US customers.
+
+[Upgrade Now]
+
+Thank you for choosing AcmeCRM!
+
+Best regards,
+The AcmeCRM Team
+                            `;
+                          }
+
+                          handleShowUpgradeEmail({ content, count });
+                        }}
+                      >
+                        <Eye size={18} />
+                      </Button>
+                      {/* <Button
                         onClick={() =>
                           handleShowUpgradeEmail({
                             content: `
@@ -391,7 +556,7 @@ The AcmeCRM Team
                         variant="neutral"
                       >
                         <Eye size={18} />
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 )}
@@ -400,7 +565,16 @@ The AcmeCRM Team
                   <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
                     <p className="mb-4">{message.content}</p>
 
-                    <div className="mb-4 bg-neutral-25 rounded-md flex items-center justify-between">
+                    <Button
+                      fullWidth
+                      onClick={() => {
+                        handleSendUpgradeEmail(350, "us");
+                      }}
+                    >
+                      Yes, proceed
+                    </Button>
+
+                    {/* <div className="mb-4 bg-neutral-25 rounded-md flex items-center justify-between">
                       <div className="p-4">
                         <h4 className="mb-0">Upgrade offer email</h4>
                         <p className="text-lightest mb-0">To: 350 customers</p>
@@ -440,7 +614,7 @@ The AcmeCRM Team
                       >
                         <Eye size={18} />
                       </Button>
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
