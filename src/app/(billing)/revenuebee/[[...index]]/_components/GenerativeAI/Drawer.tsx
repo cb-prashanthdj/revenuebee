@@ -1,61 +1,73 @@
-// components/Drawer.tsx
+// components/CustomerContent.tsx
 import React, { useState } from 'react';
-import { SDrawer, Button } from 'cb-sting-react-ts';
+import { Button } from 'cb-sting-react-ts';
 import CustomerTable from './CustomerTable';
 import CustomerAnalyzer from '../../../services/CustomerAI';
 import { Mail } from 'lucide-react';
 
-interface DrawerProps {
-    isOpen: boolean;
-    onClose: () => void;
+interface CustomerContentProps {
     title: string;
     children?: React.ReactNode;
-    position?: 'left' | 'right';
     sectionKey?: string | null;
     onSendEmail?: (selectedCustomers: number[]) => void;
+    onClose?: () => void;
+    showFooter?: boolean;
+    isSelectMode?: boolean;
+    customers?: any[]; // Custom customers list
+    customersCount?: number; // For displaying count
 }
 
-const Drawer: React.FC<DrawerProps> = ({
-                                           isOpen,
-                                           onClose,
-                                           title,
-                                           children,
-                                           position = 'right',
-                                           sectionKey,
-                                           onSendEmail
-                                       }) => {
+// Get appropriate customer data based on section title
+const getCustomerData = (sectionKey?: string | null) => {
+    if (!sectionKey) return [];
+
+    // Get analyzer data
+    const analyzer = CustomerAnalyzer;
+    const customerData = analyzer.customerData || [];
+
+    // Filter based on section title
+    if (sectionKey.toLowerCase().includes('without payment')) {
+        return customerData.filter(c => !c.paymentMethod);
+    } else if (sectionKey.toLowerCase().includes('expired')) {
+        return customerData.filter(c => c.paymentMethod?.isExpired);
+    } else if (sectionKey.toLowerCase().includes('soon-to-expire')) {
+        return customerData.filter(c =>
+            c.paymentMethod &&
+            !c.paymentMethod.isExpired &&
+            c.paymentMethod.expiresIn < 30
+        );
+    } else if (sectionKey.toLowerCase().includes('at risk')) {
+        return customerData.filter(c => c.status === 'at_risk');
+    } else if (sectionKey.toLowerCase().includes('active')) {
+        return customerData.filter(c => c.status === 'active');
+    } else if (sectionKey.toLowerCase().includes('churned')) {
+        return customerData.filter(c => c.status === 'churned');
+    }
+
+    // Default return all customers
+    return customerData;
+};
+
+const CustomerContent: React.FC<CustomerContentProps> = ({
+                                                             title,
+                                                             children,
+                                                             sectionKey,
+                                                             onSendEmail,
+                                                             onClose,
+                                                             showFooter = false,
+                                                             isSelectMode = true,
+                                                             customers,
+                                                             customersCount
+                                                         }) => {
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
 
-    // Get appropriate customer data based on section title
-    const getCustomerData = () => {
-        if (!sectionKey) return [];
+    // Use provided customers or get filtered customers based on section key
+    const filteredCustomers = customers || (sectionKey ? getCustomerData(sectionKey) : []);
 
-        // Get analyzer data
-        const analyzer = CustomerAnalyzer;
-        const customerData = analyzer.customerData || [];
-
-        // Filter based on section title
-        if (sectionKey.toLowerCase().includes('without payment')) {
-            return customerData.filter(c => !c.paymentMethod);
-        } else if (sectionKey.toLowerCase().includes('expired')) {
-            return customerData.filter(c => c.paymentMethod?.isExpired);
-        } else if (sectionKey.toLowerCase().includes('soon-to-expire')) {
-            return customerData.filter(c =>
-                c.paymentMethod &&
-                !c.paymentMethod.isExpired &&
-                c.paymentMethod.expiresIn < 30
-            );
-        } else if (sectionKey.toLowerCase().includes('at risk')) {
-            return customerData.filter(c => c.status === 'at_risk');
-        } else if (sectionKey.toLowerCase().includes('active')) {
-            return customerData.filter(c => c.status === 'active');
-        } else if (sectionKey.toLowerCase().includes('churned')) {
-            return customerData.filter(c => c.status === 'churned');
-        }
-
-        // Default return all customers
-        return customerData;
-    };
+    // Customer count to display
+    const displayCount = customersCount !== undefined
+        ? customersCount
+        : filteredCustomers.length;
 
     // Handle selection change from the customer table
     const handleSelectionChange = (ids: number[]) => {
@@ -67,62 +79,40 @@ const Drawer: React.FC<DrawerProps> = ({
         if (onSendEmail && selectedCustomerIds.length > 0) {
             onSendEmail(selectedCustomerIds);
         }
-        onClose(); // Close the drawer after action
+        if (onClose) {
+            onClose(); // Close after action
+        }
     };
 
-    const filteredCustomers = getCustomerData();
-
     return (
-        <SDrawer
-            open={isOpen}
-            onOpenChange={(open) => {
-                if (!open) onClose();
-            }}
-        >
-            <SDrawer.Content
-                className=""
-                height="full"
-                placement={position}
-                showCloseIcon
-                hasFooter={true}
-                size="wide"
-            >
-                <SDrawer.Header
-                    showCloseIcon
-                >
-                    <SDrawer.Title>
-                        {title}
-                    </SDrawer.Title>
-                    {filteredCustomers.length > 0 && (
-                        <div className="s-text-sm s-text-gray-600">
-                            {filteredCustomers.length} customer{filteredCustomers.length !== 1 ? 's' : ''} found
-                        </div>
-                    )}
-                </SDrawer.Header>
-                <div className="s-p-6 s-flex-1 s-overflow-y-auto">
-                    {children || (
-                        <CustomerTable
-                            customers={filteredCustomers}
-                            selectable={true}
-                            onSelectionChange={handleSelectionChange}
-                        />
-                    )}
-                </div>
-                <SDrawer.Footer>
-                    <Button variant="outline" onClick={onClose}>
+        <>
+            <div className="p-6 flex-1 overflow-y-auto">
+                {children || (
+                    <CustomerTable
+                        customers={filteredCustomers}
+                        selectable={isSelectMode}
+                        onSelectionChange={handleSelectionChange}
+                    />
+                )}
+            </div>
+            {showFooter && (
+                <div className=" border-gray-200 p-4 flex justify-between">
+                    <Button variant="neutral" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button
-                        disabled={selectedCustomerIds.length === 0}
-                        onClick={handleSendEmail}
-                    >
-                        <Mail size={16} className="s-mr-2" />
-                        Send Email ({selectedCustomerIds.length})
-                    </Button>
-                </SDrawer.Footer>
-            </SDrawer.Content>
-        </SDrawer>
+                    {isSelectMode && (
+                        <Button
+                            disabled={selectedCustomerIds.length === 0}
+                            onClick={handleSendEmail}
+                        >
+                            <Mail size={16} className="mr-2" />
+                            Send Email ({selectedCustomerIds.length})
+                        </Button>
+                    )}
+                </div>
+            )}
+        </>
     );
 };
 
-export default Drawer;
+export default CustomerContent;

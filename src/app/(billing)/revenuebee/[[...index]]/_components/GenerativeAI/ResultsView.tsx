@@ -1,16 +1,13 @@
 // components/SearchResultsView.tsx
 import React, { useEffect, useState, useRef } from "react";
-import { ArrowLeft, Save, Eye, Mail } from "lucide-react";
-import SearchBar from "../SearchBar";
-import CustomerAnalyzer from "../../../services/CustomerAI";
-import Drawer from "./Drawer";
-import CustomerTable from "./CustomerTable";
-import EmailModal from "./EmailModal";
-import AutomateWorkflowModal from "./AutomateWorkflowModal";
-import WorkflowDrawer from "./WorkflowDrawer";
-import ReviewEmailDrawer from "./ReviewEmailDrawer";
 import { AppToastProvider, useToast } from "../ToastProvider";
-import { Button } from "cb-sting-react-ts";
+import CustomerAnalyzer from "../../../services/CustomerAI";
+import AutomateWorkflowModal from "./AutomateWorkflowModal";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
+
+// Import our modular components
+import ChatView from "./chatUI/ChatView";
+import CanvasPanel from "./chatUI/CanvasPanel";
 
 // Define a message type for the conversation
 interface Message {
@@ -28,6 +25,7 @@ interface Message {
         fromEmail?: string;
     };
     workflowAutomated?: boolean;
+    customerList?: boolean;
     timestamp: Date;
 }
 
@@ -51,25 +49,24 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     const processingQueryRef = useRef<string | null>(null);
     const initialQueryProcessedRef = useRef(false);
 
-    // Ref for auto-scrolling to the latest message
-    const endOfMessagesRef = useRef<HTMLDivElement>(null);
+    // Canvas states
+    const [canvasOpen, setCanvasOpen] = useState(false);
+    const [canvasContentType, setCanvasContentType] = useState<'customers' | 'workflow' | 'email'>('customers');
 
-    // Add auto-scroll effect when conversation changes
-    useEffect(() => {
-        if (conversation.length > 0 && endOfMessagesRef.current) {
-            endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [conversation]);
-
-    // Drawer and modal states
-    const [isCustomerDrawerOpen, setIsCustomerDrawerOpen] = useState(false);
-    const [isAutomateModalOpen, setIsAutomateModalOpen] = useState(false);
-    const [isWorkflowDrawerOpen, setIsWorkflowDrawerOpen] = useState(false);
-    const [isReviewEmailDrawerOpen, setIsReviewEmailDrawerOpen] = useState(false);
+    // Common states
     const [activeSection, setActiveSection] = useState<string | null>(null);
     const [isSelectCustomersMode, setIsSelectCustomersMode] = useState(false);
     const [emailCustomers, setEmailCustomers] = useState<any[]>([]);
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
+
+    // Workflow state (for canvas)
+    const [daysBeforeExpiry, setDaysBeforeExpiry] = useState(5);
+    const [days, setDays] = useState(5);
+    const [isPaused, setIsPaused] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    // Modal state
+    const [isAutomateModalOpen, setIsAutomateModalOpen] = useState(false);
 
     // Email review state
     const [emailReviewData, setEmailReviewData] = useState({
@@ -93,6 +90,22 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
             expiring: analysis.paymentIssues.expiring
         };
     });
+
+    // Get all customer data
+    const getAllCustomers = () => {
+        const analyzer = CustomerAnalyzer;
+        return analyzer.customerData || [];
+    };
+
+    // Get customer data for canvas
+    const getCustomerDataForCanvas = () => {
+        return isSelectCustomersMode ? emailCustomers : getCustomerData(activeSection || "");
+    };
+
+    // Get customer count for display
+    const getCustomerCount = () => {
+        return getCustomerDataForCanvas().length;
+    };
 
     // Get total customer count
     const totalCustomerCount = customerData.missing.count + customerData.expired.count + customerData.expiring.count;
@@ -125,6 +138,36 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
 
         processingQueryRef.current = userQuery;
         setIsLoading(true);
+
+        // Check for specific queries
+        if (userQuery.toLowerCase().includes("list customers")) {
+            // Handle list customers action
+            setTimeout(() => {
+                const allCustomers = getAllCustomers();
+
+                // Add AI message to conversation with customers list
+                setConversation(prev => [
+                    ...prev,
+                    {
+                        id: generateId(),
+                        type: 'ai',
+                        content: `I found ${allCustomers.length} customers in your account. Here's the complete list with their details.`,
+                        customerList: true,
+                        timestamp: new Date()
+                    }
+                ]);
+
+                // Open canvas with customer data
+                setActiveSection("All Customers");
+                setIsSelectCustomersMode(false);
+                setCanvasContentType('customers');
+                setCanvasOpen(true);
+
+                setIsLoading(false);
+                processingQueryRef.current = null;
+            }, 1500);
+            return;
+        }
 
         // Use the CustomerAnalyzer service to generate a response
         const analyzer = CustomerAnalyzer;
@@ -177,12 +220,52 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         onSearch(newQuery);
     };
 
-    // Handle opening customer drawer
+    // Toggle canvas visibility
+    const toggleCanvas = () => {
+        setCanvasOpen(!canvasOpen);
+    };
+
+    // Get filtered customer data based on section key
+    const getCustomerData = (sectionKey: string) => {
+        // If "All Customers" is selected, return all customers
+        if (sectionKey.toLowerCase() === "all customers") {
+            return getAllCustomers();
+        }
+
+        // Get analyzer data
+        const analyzer = CustomerAnalyzer;
+        const customerData = analyzer.customerData || [];
+
+        // Filter based on section title
+        if (sectionKey.toLowerCase().includes('without payment')) {
+            return customerData.filter(c => !c.paymentMethod);
+        } else if (sectionKey.toLowerCase().includes('expired')) {
+            return customerData.filter(c => c.paymentMethod?.isExpired);
+        } else if (sectionKey.toLowerCase().includes('soon-to-expire')) {
+            return customerData.filter(c =>
+                c.paymentMethod &&
+                !c.paymentMethod.isExpired &&
+                c.paymentMethod.expiresIn < 30
+            );
+        } else if (sectionKey.toLowerCase().includes('at risk')) {
+            return customerData.filter(c => c.status === 'at_risk');
+        } else if (sectionKey.toLowerCase().includes('active')) {
+            return customerData.filter(c => c.status === 'active');
+        } else if (sectionKey.toLowerCase().includes('churned')) {
+            return customerData.filter(c => c.status === 'churned');
+        }
+
+        // Default return all customers
+        return customerData;
+    };
+
+    // Handle opening customer canvas
     const handleViewCustomers = (sectionKey: string) => {
         setActiveSection(sectionKey);
         setIsSelectCustomersMode(false); // Default view mode
         setSelectedCustomerIds([]); // Clear selection
-        setIsCustomerDrawerOpen(true);
+        setCanvasContentType('customers');
+        setCanvasOpen(true);
     };
 
     // Handle send emails to all customers
@@ -212,17 +295,17 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         ];
 
         // Remove duplicates (a customer might appear in multiple categories)
-        // @ts-ignore
         const uniqueCustomers = [...new Map(allCustomersWithIssues.map(c => [c.id, c])).values()];
 
         // Set the customers for email selection
         setEmailCustomers(uniqueCustomers);
         setSelectedCustomerIds([]);
 
-        // Set to selection mode and open drawer
+        // Set to selection mode and open canvas
         setIsSelectCustomersMode(true);
         setActiveSection("Select Customers to Email");
-        setIsCustomerDrawerOpen(true);
+        setCanvasContentType('customers');
+        setCanvasOpen(true);
     };
 
     // Handle undoing email send
@@ -235,12 +318,12 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         });
     };
 
-    // Handle sending emails to selected customers from the drawer
+    // Handle sending emails to selected customers
     const handleSendEmailToSelected = (selectedIds: number[]) => {
-        // Close the drawer
-        setIsCustomerDrawerOpen(false);
+        // Close the canvas
+        setCanvasOpen(false);
 
-        // Set the email data for the review drawer
+        // Set the email data for review
         const now = new Date();
         const fromEmail = 'billing@yourcompany.com';
 
@@ -322,9 +405,10 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         });
     };
 
-    // Handle showing email review drawer
+    // Handle showing email review in canvas
     const handleShowEmail = () => {
-        setIsReviewEmailDrawerOpen(true);
+        setCanvasContentType('email');
+        setCanvasOpen(true);
     };
 
     // Handle automating workflow
@@ -358,9 +442,80 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         });
     };
 
-    // Handle viewing workflow
+    // Handle viewing workflow in canvas
     const handleViewWorkflow = () => {
-        setIsWorkflowDrawerOpen(true);
+        setCanvasContentType('workflow');
+        setCanvasOpen(true);
+    };
+
+    // Update days before expiry (for workflow canvas)
+    const handleDaysChange = (value: number) => {
+        setDays(value);
+        // If the value is different from saved value, mark as unsaved
+        setHasUnsavedChanges(value !== daysBeforeExpiry);
+    };
+
+    // Save workflow changes (for workflow canvas)
+    const handleSaveWorkflowChanges = () => {
+        setDaysBeforeExpiry(days);
+        setHasUnsavedChanges(false);
+
+        // Show success toast
+        showToast({
+            title: "Settings Saved",
+            description: `Emails will now be sent ${days} days before payment method expiry.`,
+            variant: "success",
+            duration: 5000,
+            action: {
+                label: "Undo",
+                onClick: () => {
+                    setDays(daysBeforeExpiry);
+                    setHasUnsavedChanges(false);
+                    showToast({
+                        title: "Changes Reverted",
+                        description: "Workflow settings have been restored.",
+                        variant: "warning",
+                        duration: 3000
+                    });
+                }
+            }
+        });
+    };
+
+    // Toggle workflow status (for workflow canvas)
+    const handleToggleWorkflowStatus = () => {
+        const newStatus = !isPaused;
+        setIsPaused(newStatus);
+
+        if (newStatus) {
+            // Workflow paused
+            showToast({
+                title: "Workflow Paused",
+                description: "The payment method update workflow has been paused.",
+                variant: "warning",
+                duration: 5000,
+                action: {
+                    label: "Resume",
+                    onClick: () => {
+                        setIsPaused(false);
+                        showToast({
+                            title: "Workflow Resumed",
+                            description: "The payment method update workflow is now active.",
+                            variant: "success",
+                            duration: 3000
+                        });
+                    }
+                }
+            });
+        } else {
+            // Workflow resumed
+            showToast({
+                title: "Workflow Resumed",
+                description: "The payment method update workflow is now active.",
+                variant: "success",
+                duration: 5000
+            });
+        }
     };
 
     // Format date for display
@@ -376,219 +531,91 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
         }).format(date).replace(',', '');
     };
 
+    // Get canvas title based on content type
+    const getCanvasTitle = () => {
+        if (canvasContentType === 'customers') {
+            return activeSection || "Customer Data";
+        } else if (canvasContentType === 'email') {
+            return "Payment Method Update Request";
+        } else if (canvasContentType === 'workflow') {
+            return "Payment Method Update Workflow";
+        }
+        return "Canvas";
+    };
+
     return (
-        <div className="flex flex-col h-screen">
-            <div className="flex flex-col h-full">
-                {/* Top navigation */}
-                <div className="flex justify-between items-center bg-purple-50 p-3 shadow-sm">
-                    <button onClick={onBack} className="flex items-center text-gray-600 hover:bg-violet-600 hover:text-white rounded-md px-2 py-1">
-                        <ArrowLeft size={14} className="mr-1" />
-                        <span>Back</span>
-                    </button>
-
-                    <button className="flex items-center text-gray-600 hover:bg-violet-600 hover:text-white rounded-md px-2 py-1">
-                        <Save size={16} className="mr-2" />
-                        <span>Save View</span>
-                    </button>
-                </div>
-
-                {/* Conversation area - with more spacing between messages */}
-                <div className="flex-1 p-6 pt-12 pb-24 max-w-4xl mx-auto w-full overflow-y-auto scrollbar-hide">
-                    <div className="space-y-5"> {/* Spacing between messages */}
-                        {/* Render all messages in the conversation */}
-                        {conversation.map((message) => (
-                            <div key={message.id}>
-                                {/* User message */}
-                                {message.type === 'user' && (
-                                    <div className="flex justify-end mb-20">
-                                        <div className="bg-purple-500 text-white rounded-lg px-4 py-2 max-w-md">
-                                            {message.content}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* AI response with sections */}
-                                {message.type === 'ai' && message.response && (
-                                    <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
-                                        <p className="mb-6">{message.response.analysis}</p>
-
-                                        {/* Result sections */}
-                                        {message.response.sections.map((section, sectionIndex) => (
-                                            <div key={sectionIndex} className="mb-6">
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <h3 className="font-semibold">{section.title}</h3>
-                                                    <button
-                                                        className="text-gray-400 hover:text-gray-600"
-                                                        onClick={() => handleViewCustomers(section.title)}
-                                                    >
-                                                        <Eye size={18} />
-                                                    </button>
-                                                </div>
-                                                <p className="text-sm text-gray-600 mb-2">{section.description}</p>
-                                                <div className="flex items-center">
-                                                    <span className="text-3xl font-bold mr-2">{section.count}</span>
-                                                    <span className="text-gray-600">USD</span>
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        {/* Recommendation */}
-                                        {message.response.recommendation && (
-                                            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                                                <h4 className="font-semibold text-blue-800 mb-2">Recommendation</h4>
-                                                <p className="text-blue-700">{message.response.recommendation}</p>
-                                            </div>
-                                        )}
-
-                                        {/* Action buttons - only on payment-related responses */}
-                                        {message.response.sections.some(s =>
-                                            s.title.toLowerCase().includes('payment') ||
-                                            s.description.toLowerCase().includes('payment')
-                                        ) && (
-                                            <div className="flex space-x-4 mt-8">
-                                                {/* Send emails to all - wrapped in EmailModal */}
-                                                <EmailModal
-                                                    onSend={handleConfirmSendEmails}
-                                                    customerCount={totalCustomerCount}
-                                                >
-                                                    <Button
-                                                        onClick={handleSendAllEmails}
-                                                    >
-                                                        <Mail size={16} className="mr-2" />
-                                                        Send emails to all ({totalCustomerCount})
-                                                    </Button>
-                                                </EmailModal>
-
-
-                                                <Button
-                                                    variant={"neutral"}
-                                                    onClick={handleSelectCustomersToEmail}
-                                                >
-                                                    <Mail size={16} className="mr-2" />
-                                                    Select customers to email
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Email sent confirmation */}
-                                {message.type === 'ai' && message.emailSent && (
-                                    <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
-                                        <p className="mb-4">{message.content}</p>
-
-                                        <div className="mb-4">
-                                            <h4 className="font-semibold">Payment Method Update Request</h4>
-                                            <p className="text-sm text-gray-600">Sent to: {message.emailSent.count} customers</p>
-                                            <p className="text-sm text-gray-600">{formatDate(message.emailSent.sentAt)}</p>
-                                        </div>
-
-                                        <div className="flex space-x-4">
-                                            <Button
-                                                onClick={handleShowEmail}
-                                            >
-                                                Show email
-                                            </Button>
-                                            <Button
-                                                variant={"neutral"}
-                                                onClick={handleAutomateWorkflow}
-                                            >
-                                                Automate this workflow
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Workflow automated confirmation */}
-                                {message.type === 'ai' && message.workflowAutomated && (
-                                    <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
-                                        <p className="mb-4">{message.content}</p>
-
-                                        <Button
-                                            onClick={handleViewWorkflow}
-                                        >
-                                            View Workflow
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {/* Simple AI response (error) */}
-                                {message.type === 'ai' && !message.response && !message.emailSent && !message.workflowAutomated && (
-                                    <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
-                                        <p>{message.content}</p>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-
-                        {/* Loading indicator */}
-                        {isLoading && (
-                            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
-                                <span className="ml-3">Thinking...</span>
-                            </div>
-                        )}
-
-                        {/* Empty div for scrolling to the end of messages */}
-                        <div ref={endOfMessagesRef} />
-                    </div>
-                </div>
-
-                {/* SearchBar at bottom */}
-                <div className="border-t border-gray-200 bg-white">
-                    <SearchBar
-                        position="bottom"
-                        initialValue=""
-                        onSearch={handleNewQuery}
-                    />
-                </div>
-
-                {/* Automate Workflow Modal */}
-                <AutomateWorkflowModal
-                    isOpen={isAutomateModalOpen}
-                    onClose={() => setIsAutomateModalOpen(false)}
-                    onEnable={handleConfirmAutomateWorkflow}
-                />
-
-                {/* Customer List Drawer */}
-                {isSelectCustomersMode ? (
-                    <Drawer
-                        isOpen={isCustomerDrawerOpen}
-                        onClose={() => setIsCustomerDrawerOpen(false)}
-                        title={activeSection || "Select Customers to Email"}
-                        onSendEmail={handleSendEmailToSelected}
-                    >
-                        <CustomerTable
-                            customers={emailCustomers}
-                            selectable={true}
-                            onSelectionChange={handleCustomerSelectionChange}
+        <div className="flex flex-col fixed top-16 left-0 right-0 bottom-0">
+            {/* Main content with resizable panels */}
+            <ResizablePanelGroup direction="horizontal" className="flex-1">
+                <ResizablePanel
+                    defaultSize={canvasOpen ? 40 : 100}
+                    minSize={30}
+                    className="bg-white flex justify-center"
+                >
+                    <div className="w-full">
+                        <ChatView
+                            conversation={conversation}
+                            isLoading={isLoading}
+                            formatDate={formatDate}
+                            canvasOpen={canvasOpen}
+                            onBack={onBack}
+                            onToggleCanvas={toggleCanvas}
+                            onNewQuery={handleNewQuery}
+                            onViewCustomers={handleViewCustomers}
+                            onSelectCustomersToEmail={handleSelectCustomersToEmail}
+                            onShowEmail={handleShowEmail}
+                            onAutomateWorkflow={handleAutomateWorkflow}
+                            onViewWorkflow={handleViewWorkflow}
+                            onSendAllEmails={handleSendAllEmails}
+                            onConfirmSendEmails={handleConfirmSendEmails}
+                            totalCustomerCount={totalCustomerCount}
                         />
-                    </Drawer>
-                ) : (
-                    <Drawer
-                        isOpen={isCustomerDrawerOpen}
-                        onClose={() => setIsCustomerDrawerOpen(false)}
-                        title={activeSection || "Customers"}
-                        sectionKey={activeSection}
-                        onSendEmail={handleSendEmailToSelected}
-                    />
+                    </div>
+                </ResizablePanel>
+
+                {canvasOpen && (
+                    <>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel minSize={30}>
+                            {/* Canvas Panel */}
+                            <CanvasPanel
+                                contentType={canvasContentType}
+                                isOpen={canvasOpen}
+                                title={getCanvasTitle()}
+                                activeSection={activeSection}
+                                onClose={toggleCanvas}
+
+                                customers={getCustomerDataForCanvas()}
+                                isSelectMode={isSelectCustomersMode}
+                                selectedCustomerIds={selectedCustomerIds}
+                                onCustomerSelectionChange={handleCustomerSelectionChange}
+                                onSendEmailToSelected={handleSendEmailToSelected}
+
+                                emailData={emailReviewData}
+
+                                workflowData={{
+                                    isPaused,
+                                    daysBeforeExpiry,
+                                    days,
+                                    hasUnsavedChanges
+                                }}
+                                onDaysChange={handleDaysChange}
+                                onSaveWorkflowChanges={handleSaveWorkflowChanges}
+                                onToggleWorkflowStatus={handleToggleWorkflowStatus}
+
+                                getCustomerCount={getCustomerCount}
+                            />
+                        </ResizablePanel>
+                    </>
                 )}
+            </ResizablePanelGroup>
 
-                {/* Workflow Drawer */}
-                <WorkflowDrawer
-                    isOpen={isWorkflowDrawerOpen}
-                    onClose={() => setIsWorkflowDrawerOpen(false)}
-                />
-
-                {/* Review Email Drawer */}
-                <ReviewEmailDrawer
-                    isOpen={isReviewEmailDrawerOpen}
-                    onClose={() => setIsReviewEmailDrawerOpen(false)}
-                    customerCount={emailReviewData.customerCount}
-                    sentAt={emailReviewData.sentAt}
-                    fromEmail={emailReviewData.fromEmail}
-                />
-            </div>
+            {/* Automate Workflow Modal */}
+            <AutomateWorkflowModal
+                isOpen={isAutomateModalOpen}
+                onClose={() => setIsAutomateModalOpen(false)}
+                onEnable={handleConfirmAutomateWorkflow}
+            />
         </div>
     );
 };

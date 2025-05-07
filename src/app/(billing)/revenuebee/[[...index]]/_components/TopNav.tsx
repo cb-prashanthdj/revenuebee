@@ -1,10 +1,12 @@
 // components/TopNav.tsx
+"use client";
 import React from "react";
-import Link from "next/link";
+import Image from "next/image";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Switch from "@radix-ui/react-switch";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Badge } from 'cb-sting-react-ts';
+import cbLogo from "@/app/assets/img/cb-logo.svg";
 import {
     Building2,
     ChevronDown,
@@ -29,14 +31,17 @@ const TopNav = () => {
     const [accountOpen, setAccountOpen] = React.useState(false);
 
     return (
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 left-0 right-0">
             <div className="flex items-center space-x-5">
-                <h1 className="text-xl font-semibold text-red-500">Revenuebee</h1>
+                <div className={"flex items-center space-x-2"}>
+                    <Image src={cbLogo} alt="Chargebee" className="w-6" />
+                    <h1 className=" m-0 text-2xl font-semibold text-brand-logo">Revenuebee</h1>
+                </div>
 
                 {/* Company Dropdown Menu */}
                 <DropdownMenu.Root onOpenChange={setAccountOpen}>
                     <DropdownMenu.Trigger asChild>
-                        <button className="flex items-center space-x-1 rounded-md px-2 py-1 ml-4 focus:outline-none hover:bg-purple-200 ">
+                        <button className="flex items-center space-x-1 rounded-md px-2 py-1 ml-4 focus:outline-none hover:bg-brand-deep-light ">
                             <span className="flex items-center">
                                 <Building2 className="h-5 w-5 mr-1" />
                                 Acme Corp
@@ -121,27 +126,27 @@ const TopNav = () => {
 
             <div className="flex items-center space-x-4">
                 {/* AI Mode Toggle */}
-                <div className="flex items-center">
-                    <span className="mr-2">AI Mode</span>
-                    <Switch.Root
-                        checked={aiMode}
-                        onCheckedChange={setAiMode}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                            aiMode ? 'bg-purple-600' : 'bg-gray-200'
-                        }`}
-                    >
-                        <Switch.Thumb
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                                aiMode ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                        />
-                    </Switch.Root>
-                </div>
+                {/*<div className="flex items-center">*/}
+                {/*    <span className="mr-2">AI Mode</span>*/}
+                {/*    <Switch.Root*/}
+                {/*        checked={aiMode}*/}
+                {/*        onCheckedChange={setAiMode}*/}
+                {/*        className={`relative inline-flex h-6 w-11 items-center rounded-full ${*/}
+                {/*            aiMode ? 'bg-purple-600' : 'bg-gray-200'*/}
+                {/*        }`}*/}
+                {/*    >*/}
+                {/*        <Switch.Thumb*/}
+                {/*            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${*/}
+                {/*                aiMode ? 'translate-x-6' : 'translate-x-1'*/}
+                {/*            }`}*/}
+                {/*        />*/}
+                {/*    </Switch.Root>*/}
+                {/*</div>*/}
 
                 {/* Dark Mode Toggle */}
                 <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                        <button className="focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-full">
+                        <button className="focus:outline-none focus:ring-2 ">
                             <Moon className="h-5 w-5" />
                         </button>
                     </DropdownMenu.Trigger>
@@ -173,7 +178,7 @@ const TopNav = () => {
                 {/* Settings Menu */}
                 <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                        <button className="p-1 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-full">
+                        <button className="p-1 focus:outline-none focus:ring-2 ">
                             <Settings className="h-5 w-5" />
                         </button>
                     </DropdownMenu.Trigger>
@@ -214,7 +219,7 @@ const TopNav = () => {
                 {/* User Avatar */}
                 <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                        <button className="h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <button className="h-8 w-8 rounded-full bg-brand-deep-dark text-white flex items-center justify-center focus:outline-none focus:ring-2 ">
                             <span>U</span>
                         </button>
                     </DropdownMenu.Trigger>

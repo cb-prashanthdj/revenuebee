@@ -8,7 +8,7 @@ const BaseLayout = ({ children }: { children: React.ReactNode }) => {
             <TopNav />
             <div className="flex flex-1">
                 <main className="flex-1 transition-all duration-300">
-                    <div className="max-w-8xl mx-auto">
+                    <div className="max-w-8xl mx-auto overflow-hidden">
                         <div className="flex flex-col gap-6">{children}</div>
                     </div>
                 </main>

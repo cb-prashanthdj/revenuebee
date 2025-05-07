@@ -56,7 +56,7 @@ const RevenueChat: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full overscroll-none">
             <div className="h-32"></div>
 
             <div className="text-center mb-8 px-4">
@@ -74,7 +74,6 @@ const RevenueChat: React.FC = () => {
 
             <div className="mb-24">
                 <SearchBar
-                    position="center"
                     onSearch={handleSearch}
                 />
             </div>

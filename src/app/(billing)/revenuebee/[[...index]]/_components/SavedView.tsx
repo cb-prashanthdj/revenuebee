@@ -1,5 +1,6 @@
 // components/SavedView.tsx
 import React from "react";
+import { Badge } from 'cb-sting-react-ts';
 
 const SavedView: React.FC = () => {
     // Sample data for saved views
@@ -50,18 +51,18 @@ const SavedView: React.FC = () => {
                 {savedViews.map((view) => (
                     <div
                         key={view.id}
-                        className="border rounded-lg p-6 hover:border-purple-500 hover:shadow-md transition-all cursor-pointer bg-white group"
+                        className="border rounded-lg p-6 hover:border-brand-deep-dark hover:shadow-md transition-all cursor-pointer bg-white group"
                     >
-                        <h3 className="text-lg font-semibold mb-2 group-hover:text-purple-600 transition-colors">
+                        <h3 className="text-lg font-semibold mb-2 group-hover:text-brand-deep-dark transition-colors">
                             {view.title}
                         </h3>
-                        <p className="text-gray-600 mb-6 group-hover:text-purple-500 transition-colors">
+                        <p className="text-gray-600 mb-6 group-hover:text-brand-deep-dark transition-colors">
                             {view.description}
                         </p>
 
-                        <span className="inline-flex text-sm px-3 py-1 bg-gray-100 rounded-full group-hover:bg-purple-100 transition-colors">
-              {view.type}
-            </span>
+                        <Badge variant={'neutral'}>
+                          {view.type}
+                        </Badge>
                     </div>
                 ))}
             </div>
