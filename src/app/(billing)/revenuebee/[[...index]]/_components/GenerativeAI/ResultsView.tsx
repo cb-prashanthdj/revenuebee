@@ -130,6 +130,8 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     | "email"
     | "upgradeEmail"
     | "subscription"
+    | "abTesting"
+    | "remainderEmail"
     | "abExperiment"
   >("customers");
 
@@ -974,6 +976,11 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     setCanvasOpen(true);
   };
 
+  const handleShowRemainerEmail = () => {
+    setCanvasContentType("remainderEmail");
+    setCanvasOpen(true);
+  };
+
   // Handle automating workflow
   const handleAutomateWorkflow = () => {
     setIsAutomateModalOpen(true);
@@ -1158,6 +1165,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
               onViewWorkflow={handleViewWorkflow}
               onSendAllEmails={handleSendPaymentReminders}
               onConfirmSendEmails={handleConfirmSendEmails}
+              onShowRemainerEmail={handleShowRemainerEmail}
               totalCustomerCount={getTotalPaymentIssuesCount()}
               // AR Aging Summary actions
               onRequestPaymentMethodUpdate={handleRequestPaymentMethodUpdate}

@@ -6,7 +6,7 @@ import EmailContent from "../ReviewEmailDrawer";
 import WorkflowContent from "../WorkflowDrawer";
 import SubscriptionFlow from "../SubscriptionFlow";
 import UpgradeEmail from "../UpgradeEmail";
-import ABExperimentCard from "../ABExperimentCard";
+import PaymentRemainderMailDrawer from "../../GenerativeAI/overdueFlow/PaymentRemainderMailDrawer";
 
 interface CanvasPanelProps {
   contentType:
@@ -15,7 +15,9 @@ interface CanvasPanelProps {
     | "email"
     | "subscription"
     | "upgradeEmail"
-    | "abExperiment";
+    | "remainderEmail"
+    | "abExperiment"
+    | "abTesting";
   isOpen: boolean;
   title: string;
   activeSection: string | null;
@@ -141,7 +143,9 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({
         />
       )}
 
-      {contentType === "abExperiment" && <ABExperimentCard />}
+      {contentType === "remainderEmail" && emailData && (
+        <PaymentRemainderMailDrawer showFooter={true} onClose={onClose} />
+      )}
 
       {contentType === "workflow" && workflowData && (
         <WorkflowContent

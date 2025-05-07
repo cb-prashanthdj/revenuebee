@@ -80,6 +80,7 @@ interface ChatViewProps {
   onSendPaymentReminders: () => void;
   onPauseSubscriptions: () => void;
   onCancelSubscriptions: () => void;
+  onShowRemainerEmail: () => void;
   // Subscription actions
   onUploadSubscriptionDocument: () => void;
   onCreateSubscriptionManually: () => void;
@@ -97,6 +98,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   onViewCustomers,
   onSelectCustomersToEmail,
   onShowEmail,
+  onShowRemainerEmail,
   onAutomateWorkflow,
   onViewWorkflow,
   onSendAllEmails,
@@ -232,6 +234,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                       onRequestPaymentMethodUpdate={
                         onRequestPaymentMethodUpdate
                       }
+                      onShowRemainerEmail={onShowRemainerEmail}
                       onSendPaymentReminders={onSendPaymentReminders}
                       onPauseSubscriptions={onPauseSubscriptions}
                       onCancelSubscriptions={onCancelSubscriptions}
