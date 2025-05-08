@@ -635,7 +635,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
       {
         id: generateId(),
         type: "ai",
-        content: `Subscription created successfully for ${subscriptionData.customerEmail}`,
+        content: `Subscription created successfully for customer3796@example.com`,
         subscriptionFlow: {
           stage: "created",
         },

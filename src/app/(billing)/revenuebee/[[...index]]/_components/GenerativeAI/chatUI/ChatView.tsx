@@ -207,7 +207,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                                             <Button
                                                 onClick={onPreviewSubscription}
                                                 styleType="primary"
-                                                className="w-full"
+                                                fullWidth={true}
                                             >
                                                 Preview And Create Subscription
                                             </Button>
@@ -322,15 +322,15 @@ const ChatView: React.FC<ChatViewProps> = ({
                                     !message.arAgingSummary &&
                                     !message.subscriptionFlow &&
                                     !message.revenueGrowth && (
-                                        <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
-                                            <p className="mb-6">{message.response.analysis}</p>
+                                        <div className=" rounded-lg p-6 shadow-sm max-w-xl">
+                                            <p className="mb-6 text-lg">{message.response.analysis}</p>
 
                                             {/* Result sections */}
                                             {message.response.sections.map(
                                                 (section, sectionIndex) => (
-                                                    <div key={sectionIndex} className="mb-6">
-                                                        <div className="flex justify-between items-center mb-1">
-                                                            <h3 className="font-semibold">{section.title}</h3>
+                                                    <div key={sectionIndex} className="mb-6 border border-2 rounded p-2">
+                                                        <div className="flex justify-between items-center">
+                                                            <h3 className="font-medium">{section.title}</h3>
                                                             <Button
                                                                 styleType="icon-borderless"
                                                                 variant="neutral"
@@ -397,7 +397,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                                 {/* Email sent confirmation */}
                                 {message.type === "ai" && message.emailSent && (
                                     <div className="bg-white rounded-lg p-6 shadow-sm max-w-xl">
-                                        <p className="mb-4">{message.content}</p>
+                                        <p className="text-lg mb-4">{message.content}</p>
 
                                         <div className="mb-4">
                                             <h4 className="font-semibold">
