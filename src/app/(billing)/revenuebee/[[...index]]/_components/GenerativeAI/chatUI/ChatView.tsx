@@ -207,7 +207,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                                             <Button
                                                 onClick={onPreviewSubscription}
                                                 styleType="primary"
-                                                className="w-full"
+                                                fullWidth={true}
                                             >
                                                 Preview And Create Subscription
                                             </Button>
