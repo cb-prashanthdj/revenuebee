@@ -7,12 +7,14 @@ interface CustomerTableProps {
   customers: Customer[];
   onSelectionChange?: (selectedIds: string[]) => void;
   selectedIds?: string[];
+  selectable?: boolean;
 }
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
   customers,
   onSelectionChange,
   selectedIds = [],
+  selectable,
 }) => {
   // Convert all IDs to strings for consistent comparison
   const [selected, setSelected] = useState<string[]>(selectedIds);
