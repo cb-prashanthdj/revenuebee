@@ -136,7 +136,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
   >("customers");
 
   // Form mode for subscription
-  const [formMode, setFormMode] = useState<"edit" | "preview">("edit");
+  const [formMode, setFormMode] = useState<"edit" | "preview" | "view">("edit");
 
   // Common states
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -613,6 +613,14 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
     // Open canvas with form in preview mode using extracted data
     setFormMode("preview");
     setSubscriptionData(defaultSubscriptionData); // Use the extracted data
+    setCanvasContentType("subscription");
+    setCanvasOpen(true);
+  };
+
+  const handleViewSubscription = () => {
+    // Open canvas with form in preview mode using extracted data
+    setFormMode("view");
+    setSubscriptionData(defaultSubscriptionData);
     setCanvasContentType("subscription");
     setCanvasOpen(true);
   };
@@ -1176,6 +1184,7 @@ const SearchResultsViewInner: React.FC<SearchResultsViewProps> = ({
               onUploadSubscriptionDocument={handleUploadDocument}
               onCreateSubscriptionManually={handleCreateManually}
               onPreviewSubscription={handlePreviewSubscription}
+              onViewSubscription={handleViewSubscription}
               // Upgrade email actions
               onEditPreview={onEditPreview}
               handleShowUpgradeEmail={handleShowUpgradeEmail}

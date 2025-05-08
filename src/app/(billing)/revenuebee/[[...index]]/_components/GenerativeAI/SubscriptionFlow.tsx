@@ -17,7 +17,7 @@ interface SubscriptionFlowProps {
     onSubmit: (formData: SubscriptionData) => void;
     showToast?: (props: any) => void;
     // Any other props it might need
-    initialMode?: 'edit' | 'preview';
+    initialMode?: 'edit' | 'preview' | 'view';
     initialData?: SubscriptionData
 }
 
@@ -29,7 +29,7 @@ const SubscriptionForm: React.FC<SubscriptionFlowProps> = ({
                                                                initialMode = 'edit'
                                                            }) => {
     const [formData, setFormData] = useState<SubscriptionData>(initialData);
-    const [viewMode, setViewMode] = useState<'edit' | 'preview'>(initialMode);
+    const [viewMode, setViewMode] = useState<'edit' | 'preview' | 'view'>(initialMode);
 
     // Update form data when initialData changes
     useEffect(() => {
@@ -118,6 +118,62 @@ const SubscriptionForm: React.FC<SubscriptionFlowProps> = ({
                             styleType="primary"
                         >
                             Create Subscription
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    else if (viewMode === 'view') {
+        return (
+            <div className="p-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+
+                    <div className="grid grid-cols-2 gap-y-6">
+                        <div>
+                            <h3 className="text-sm text-gray-500">Customer ID</h3>
+                            <p className="font-medium">{formData.customerId}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm text-gray-500">Customer Email</h3>
+                            <p className="font-medium">{formData.customerEmail}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm text-gray-500">Plan</h3>
+                            <p className="font-medium">{formData.plan}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm text-gray-500">Billing Cycles</h3>
+                            <p className="font-medium">{formData.billingCycles}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm text-gray-500">Start Date</h3>
+                            <p className="font-medium">{formData.startDate}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm text-gray-500">Trial End</h3>
+                            <p className="font-medium">{formData.trialEnd || 'No trial'}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm text-gray-500">Quantity</h3>
+                            <p className="font-medium">{formData.quantity}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm text-gray-500">Auto Collection</h3>
+                            <p className="font-medium">{formData.autoCollection}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-8">
+                        <Button
+                            onClick={handleEdit}
+                            variant={'neutral'}
+                        >
+                            Edit Details
                         </Button>
                     </div>
                 </div>
