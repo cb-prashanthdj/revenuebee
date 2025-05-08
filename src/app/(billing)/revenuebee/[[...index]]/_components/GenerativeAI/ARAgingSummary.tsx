@@ -67,24 +67,26 @@ const ARAgingSummary: React.FC<ARAgingSummaryProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-neutral-25 rounded-lg p-6 shadow-sm max-w-xl">
-        <h2 className="text-xl font-semibold mb-6">
+      <div className="bg-neutral rounded-lg p-6 shadow-sm max-w-xl ">
+        <p className="text-lg font-inter">
           Here's the AR aging summary of customers with overdue invoices:
-        </h2>
+        </p>
 
         {sections.map((section, index) => (
-          <div key={index} className="mb-8">
+          <div key={index} className="mb-4 border border-2 rounded-md p-3 ">
             <div className="flex justify-between items-center mb-1">
-              <h3 className="font-semibold">{section.title}</h3>
+              <h3 className=" text-xl font-medium">{section.title}</h3>
+            </div>
+            <div className="flex justify-between items-center mb-1">
+              <p className="text-sm text-gray-600 mb-2">{section.description}</p>
               <Button
-                styleType="icon-borderless"
-                variant="neutral"
-                onClick={() => onViewCustomers(section.title)}
+                  styleType="icon-borderless"
+                  variant="neutral"
+                  onClick={() => onViewCustomers(section.title)}
               >
                 <Eye size={18} />
               </Button>
             </div>
-            <p className="text-sm text-gray-600 mb-2">{section.description}</p>
             <div className="flex items-center">
               <span className="text-3xl font-bold mr-2">{section.count}</span>
               <span className="text-gray-600">items</span>
