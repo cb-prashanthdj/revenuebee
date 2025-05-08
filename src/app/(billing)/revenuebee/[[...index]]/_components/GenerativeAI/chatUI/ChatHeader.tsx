@@ -48,25 +48,6 @@ const ShrinkableHeader: React.FC<ShrinkableHeaderProps> = ({
             <div className="flex items-center space-x-2">
                 <Button
                     variant={'neutral'}
-                    size={isScrolled ? "sm" : "default"}
-                    onClick={onToggleCanvas}
-                    className="flex items-center space-x-1"
-                >
-                    {canvasOpen ? (
-                        <>
-                            <Minimize size={isScrolled ? 14 : 16} />
-                            <span>Hide Canvas</span>
-                        </>
-                    ) : (
-                        <>
-                            <Maximize size={isScrolled ? 14 : 16} />
-                            <span>Show Canvas</span>
-                        </>
-                    )}
-                </Button>
-
-                <Button
-                    variant={'neutral'}
                 >
                     <Save size={isScrolled ? 14 : 16} className="mr-2" />
                     <span>Save View</span>

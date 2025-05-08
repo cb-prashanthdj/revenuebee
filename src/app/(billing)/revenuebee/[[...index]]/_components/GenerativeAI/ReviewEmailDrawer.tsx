@@ -52,7 +52,7 @@ const EmailContent: React.FC<EmailContentProps> = ({
                     <div className="border rounded-md p-6 bg-gray-50">
                         <p className="mb-4">Dear {'{customer_name}'},</p>
                         <p className="mb-4">We noticed that we need to update your payment method information.</p>
-                        <p className="mb-4 bg-gray-200 text-center py-2 rounded-md text-blue-700 font-medium">[Update Payment Method]</p>
+                        <p className="mb-4 bg-gray-200 text-center py-2 rounded-md text-blue-700 font-medium">Update Payment Method</p>
                         <p className="mb-4">Thank you for your prompt attention to this matter.</p>
                         <p>
                             Best regards,<br />

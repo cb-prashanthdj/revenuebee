@@ -140,9 +140,6 @@ const ARAgingSummary: React.FC<ARAgingSummaryProps> = ({
           </div>
           <div className="flex space-x-4">
             <Button onClick={onShowRemainerEmail}>Show email</Button>
-            <Button variant="neutral" onClick={onRequestPaymentMethodUpdate}>
-              Automate this workflow
-            </Button>
           </div>
         </div>
       )}
