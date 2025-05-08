@@ -703,13 +703,18 @@ The AcmeCRM Team
                             </div>
                         ))}
 
-                        {/* Loading indicator */}
-                        {isLoading && (
-                            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
-                                <span className="ml-3">Thinking...</span>
-                            </div>
-                        )}
+                        {/* Loading indicator */}{isLoading && (
+                            <div className="flex items-center p-2 rounded">
+                              <span className="text-brand-deep-dark text-xl font-medium">
+                                Thinking
+                                <span className="inline-flex ml-2 space-x-1">
+                                  <span className="w-1 h-1 rounded-full bg-brand-deep-dark animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                                  <span className="w-1 h-1 rounded-full bg-brand-deep-dark animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                                  <span className="w-1 h-1 rounded-full bg-brand-deep-dark animate-bounce" style={{ animationDelay: "600ms" }}></span>
+                                </span>
+                              </span>
+                        </div>
+                    )}
 
                         {/* Empty div for scrolling to the end of messages */}
                         <div ref={endOfMessagesRef}/>
