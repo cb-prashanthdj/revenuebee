@@ -6,7 +6,7 @@ import { X, Save, Mail, FileText, BarChart } from 'lucide-react';
 import CustomerTable from './CustomerTable';
 
 interface Customer {
-    id: number;
+    id: string | number;
     name: string;
     email: string;
     mrr: number;
@@ -23,9 +23,9 @@ interface CanvasProps {
     content: any;
     contentType: 'customers' | 'workflow' | 'email';
     isSelectMode?: boolean;
-    selectedCustomerIds?: number[];
+    selectedCustomerIds?: string[]; // Updated to string[] to match CustomerTable
     onClose: () => void;
-    onSelectionChange?: (selectedIds: number[]) => void;
+    onSelectionChange?: (selectedIds: string[]) => void; // Updated to string[] to match CustomerTable
     onSendEmail?: () => void;
 }
 
@@ -124,6 +124,7 @@ const Canvas: React.FC<CanvasProps> = ({
                             customers={content || []}
                             selectable={isSelectMode}
                             onSelectionChange={onSelectionChange}
+                            selectedIds={selectedCustomerIds} // Pass the selected IDs to CustomerTable
                         />
                         {isSelectMode && selectedCustomerIds && selectedCustomerIds.length > 0 && (
                             <div className="border-t border-gray-200 p-4 flex justify-end">
