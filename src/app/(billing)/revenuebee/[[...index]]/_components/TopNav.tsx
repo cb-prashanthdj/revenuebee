@@ -35,7 +35,7 @@ const TopNav = () => {
             <div className="flex items-center space-x-5">
                 <div className={"flex items-center space-x-2"}>
                     <Image src={cbLogo} alt="Chargebee" className="w-6" />
-                    <h1 className=" m-0 text-2xl font-semibold text-brand-logo">Revenuebee</h1>
+
                 </div>
 
                 {/* Company Dropdown Menu */}
@@ -126,22 +126,22 @@ const TopNav = () => {
 
             <div className="flex items-center space-x-4">
                 {/* AI Mode Toggle */}
-                {/*<div className="flex items-center">*/}
-                {/*    <span className="mr-2">AI Mode</span>*/}
-                {/*    <Switch.Root*/}
-                {/*        checked={aiMode}*/}
-                {/*        onCheckedChange={setAiMode}*/}
-                {/*        className={`relative inline-flex h-6 w-11 items-center rounded-full ${*/}
-                {/*            aiMode ? 'bg-purple-600' : 'bg-gray-200'*/}
-                {/*        }`}*/}
-                {/*    >*/}
-                {/*        <Switch.Thumb*/}
-                {/*            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${*/}
-                {/*                aiMode ? 'translate-x-6' : 'translate-x-1'*/}
-                {/*            }`}*/}
-                {/*        />*/}
-                {/*    </Switch.Root>*/}
-                {/*</div>*/}
+                <div className="flex items-center">
+                    <span className="mr-2">AI Mode</span>
+                    <Switch.Root
+                        checked={aiMode}
+                        onCheckedChange={setAiMode}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
+                            aiMode ? 'bg-purple-600' : 'bg-gray-200'
+                        }`}
+                    >
+                        <Switch.Thumb
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                                aiMode ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                        />
+                    </Switch.Root>
+                </div>
 
                 {/* Dark Mode Toggle */}
                 <DropdownMenu.Root>
